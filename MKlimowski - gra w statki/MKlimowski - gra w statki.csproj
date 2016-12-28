@@ -69,6 +69,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Plansza.cs" />
+    <Compile Include="Pole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -94,6 +96,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Statek.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Nieodkryte-pole.png" />
+    <Resource Include="Images\Pudlo.png" />
+    <Resource Include="Images\Twoj-zestrzelony.png" />
+    <Resource Include="Images\Ty-zestrzeliles.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
