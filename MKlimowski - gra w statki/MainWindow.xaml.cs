@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace MKlimowski___gra_w_statki
 {
@@ -21,24 +22,43 @@ namespace MKlimowski___gra_w_statki
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const int Wymiar = 10;
+        public const int Wymiar = 10; //TODO: nie ten plik
+        private Rozgrywka Gra { get; }
+        private Stan StanGry { get; }
+        private Dictionary<RodzajPola, Uri> UriObrazkow { get; set; }
         public MainWindow()
         {
             InitializeComponent();
+            Instukcje.Text = "Instrukcje:\nRozmiesc swoje statki.";
 
-            MainGrid.ShowGridLines = true;
+            MainGrid.ShowGridLines = false; // TODO: temporary
 
             double szerokoscKolumny = MainGrid.ColumnDefinitions[0].Width.Value / Wymiar;
             double wysokoscWiersza = MainGrid.RowDefinitions[1].Height.Value / Wymiar;
 
+            UstawObrazkiPol();
+
             this.StworzPlansze(PlanszaKomputera, szerokoscKolumny, wysokoscWiersza);
             this.StworzPlansze(PlanszaGracza, szerokoscKolumny, wysokoscWiersza);
 
+            Gra = new Rozgrywka();
+            StanGry = Stan.Start;
+        }
+
+        private void UstawObrazkiPol()
+        {
+            UriObrazkow = new Dictionary<RodzajPola, Uri>()
+            {
+                {RodzajPola.Puste, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Nieodkryte-pole.png")},
+                {RodzajPola.Pudlo, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Pudlo.png")},
+                {RodzajPola.Trafiony, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Trafiony.png")},
+                {RodzajPola.Statek, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Statek.png")}
+            };
         }
 
         private void StworzPlansze(Grid plansza, double szerokosc, double wysokosc)
         {
-            //Tworzenie "tabeli"
+            //Tworzenie siatki pol
             for (int i = 0; i < Wymiar; i++)
             {
                 plansza.ColumnDefinitions.Add(new ColumnDefinition()
@@ -52,17 +72,17 @@ namespace MKlimowski___gra_w_statki
             }
 
             //Wypelnianie nietrafionymi polami
-            for (int j = 0; j < Wymiar; j++)
+            for (int x = 0; x < Wymiar; x++)
             {
-                for (int i = 0; i < Wymiar; i++)
+                for (int y = 0; y < Wymiar; y++)
                 {
                     var pole = new Image
                     {
                         Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Nieodkryte-pole.png"))
                     };
 
-                    pole.SetValue(Grid.RowProperty, j);
-                    pole.SetValue(Grid.ColumnProperty, i);
+                    pole.SetValue(Grid.RowProperty, x);
+                    pole.SetValue(Grid.ColumnProperty, y);
                     plansza.Children.Add(pole);
                 }
             }
@@ -70,5 +90,55 @@ namespace MKlimowski___gra_w_statki
             //TODO: temporary
             //plansza.ShowGridLines = true;
         }
+
+        private void Rysuj()
+        {
+            Action EmptyDelegate = delegate() { };
+            //Rysuj plansze Gracza
+            foreach (var pole in Gra.Gracza.ListaPol)
+            {
+                var element = PlanszaGracza.Children.Cast<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
+                element.Source = new BitmapImage(UriObrazkow[pole.TypPola]);
+                //element.Dispatcher.Invoke(DispatcherPriority.Render, EmptyDelegate);
+            }
+
+            //Rysuj plansze komputera
+            foreach (var pole in Gra.Komputera.ListaPol)
+            {
+                var element = PlanszaGracza.Children.Cast<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
+                //Jesli polem jest statek, to ustaw jako puste, zeby gracz nie widzial gdzie statki ma komputer
+                element.Source = pole.TypPola == RodzajPola.Statek ? new BitmapImage(UriObrazkow[RodzajPola.Puste]) : new BitmapImage(UriObrazkow[pole.TypPola]);
+                //element.Dispatcher.Invoke(DispatcherPriority.Render, EmptyDelegate);
+            }
+        }
+
+        private void Przebieg_Click(object sender, RoutedEventArgs e)
+        {
+            switch (StanGry)
+            {
+                case Stan.Start:
+                    Gra.InicjalizujFakowymiStatkami();
+                    Rysuj();
+                    break;
+                case Stan.Rozstawianie:
+                    break;
+                case Stan.KoniecRozstawiania:
+                    break;
+                case Stan.RuchGracza:
+                    break;
+                case Stan.RuchKomputera:
+                    break;
+                case Stan.Koniec:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    //TODO: nie wiem czy ten plik
+    public enum Stan
+    {
+        Start, Rozstawianie, KoniecRozstawiania, RuchGracza, RuchKomputera, Koniec
     }
 }

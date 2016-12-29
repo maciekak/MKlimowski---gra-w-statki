@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Rozgrywka.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -103,8 +104,9 @@
   <ItemGroup>
     <Resource Include="Images\Nieodkryte-pole.png" />
     <Resource Include="Images\Pudlo.png" />
-    <Resource Include="Images\Twoj-zestrzelony.png" />
-    <Resource Include="Images\Ty-zestrzeliles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Trafiony.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
