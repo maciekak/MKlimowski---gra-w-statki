@@ -8,24 +8,22 @@ namespace MKlimowski___gra_w_statki
 {
     public class Rozgrywka
     {
-        public Plansza Gracza { get; set; }
-        public Plansza Komputera { get; set; }
+        public Gracz Player { get; set; }
+        public Komputer PrzeciwnikKomputerowy { get; set; }
 
         public Rozgrywka()
         {
-            Gracza = new Plansza();
-            Komputera = new Plansza();
-            Gracza.UstawNaStart();
-            Komputera.UstawNaStart();
+            Player = new Gracz();
+            PrzeciwnikKomputerowy = new Komputer();
         }
 
 
         public void InicjalizujFakowymiStatkami()
         {
-            Gracza.UstawStatek(2,2,4, Kierunek.Dol);
-            Gracza.UstawStatek(4,4,3, Kierunek.Dol);
-            Gracza.UstawStatek(6,6,2, Kierunek.Prawo);
-            Gracza.UstawStatek(8, 8, 1, Kierunek.Dol);
+            Plansza.UstawStatek(Player.PlanszaUzytkownika.ListaPol, new Statek(4) {X = 2, Y = 2, Kierunek = Kierunek.Dol});
+            Plansza.UstawStatek(Player.PlanszaUzytkownika.ListaPol, new Statek(3) { X = 4, Y = 4, Kierunek = Kierunek.Prawo });
+            Plansza.UstawStatek(Player.PlanszaUzytkownika.ListaPol, new Statek(2) { X = 6, Y = 6, Kierunek = Kierunek.Dol });
+            Plansza.UstawStatek(Player.PlanszaUzytkownika.ListaPol, new Statek(1) { X = 8, Y = 8, Kierunek = Kierunek.Prawo });
         }
     }
 

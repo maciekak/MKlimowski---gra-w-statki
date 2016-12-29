@@ -55,6 +55,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Gracz.cs" />
+    <Compile Include="IPolozenie.cs" />
+    <Compile Include="Komputer.cs" />
+    <Compile Include="Statek.cs" />
+    <Compile Include="Uzytkownik.cs" />
     <Compile Include="Rozgrywka.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -26,15 +26,20 @@ namespace MKlimowski___gra_w_statki
             }
         }
 
-        public void Kopiuj(Plansza plansza)
+        public void Zeruj()
         {
-            ListaPol.ForEach(p => plansza.ListaPol.Add(p));
+            ListaPol.ForEach(p => p.TypPola = RodzajPola.Puste);
         }
 
-        public bool UsunPole(int x, int y)
+        public static void Kopiuj(List<Pole> zListy, List<Pole> doListy)
         {
-            var itemToRemove = ListaPol.Single(p => p.PorownajPolozenie(x, y));
-            return ListaPol.Remove(itemToRemove);
+            zListy.ForEach(doListy.Add);
+        }
+
+        public static bool UsunPole(int x, int y, List<Pole> listaPol )
+        {
+            var itemToRemove = listaPol.Single(p => p.PorownajPolozenie(x, y));
+            return listaPol.Remove(itemToRemove);
         }
 
         public bool UsunPoleIOkolice(int x, int y)
@@ -47,27 +52,51 @@ namespace MKlimowski___gra_w_statki
             return iloscElementow != ListaPol.Count;
         }
 
+        public static bool UsunStatekIOkolice(List<Pole> polaPlanszy, Statek statek)
+        {
+            int dlugoscPierwotnaListy = polaPlanszy.Count;
+            List<Pole> pola;
+            switch (statek.Kierunek)
+            {
+                case Kierunek.Dol:
+                    pola =
+                        polaPlanszy.Where( p => p.X >= statek.X - 1 && p.X <= statek.X + 1 && p.Y >= statek.Y - 1 && p.Y < statek.Y + statek.Dlugosc + 1).ToList();
+                    break;
+                case Kierunek.Prawo:
+                    pola =
+                        polaPlanszy.Where(
+                            p =>
+                                p.Y >= statek.Y - 1 && p.Y <= statek.Y + 1 && p.X >= statek.X - 1 &&
+                                p.X < statek.X + statek.Dlugosc + 1).ToList();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-        public bool UstawStatek(int x, int y, int dlugosc, Kierunek kierunek)
+            pola.ForEach(p => polaPlanszy.Remove(p));
+
+            return polaPlanszy.Count + pola.Count == dlugoscPierwotnaListy;
+        }
+
+        public static bool UstawStatek(List<Pole> startowePola, Statek statek)
         {
             //TODO: no kurwa popraw, bo chujowo
             List<Pole> pola;
-            switch (kierunek)
+            switch (statek.Kierunek)
             {
                 case Kierunek.Dol:
-                    pola = ListaPol.Where(p => p.X == x && p.Y >= y && p.Y < y + dlugosc).ToList();
+                    pola = startowePola.Where(p => p.X == statek.X && p.Y >= statek.Y && p.Y < statek.Y + statek.Dlugosc && p.TypPola == RodzajPola.Puste).ToList();
                     break;
                 case Kierunek.Prawo:
-                    pola = ListaPol.Where(p => p.Y == y && p.X >= x && p.X < x + dlugosc).ToList();
+                    pola = startowePola.Where(p => p.Y == statek.Y && p.X >= statek.X && p.X < statek.X + statek.Dlugosc && p.TypPola == RodzajPola.Puste).ToList();
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(kierunek), kierunek, null);
+                    throw new ArgumentOutOfRangeException(nameof(statek.Kierunek), statek.Kierunek, null);
             }
-            if (pola.Count != dlugosc) return false; //TODO: pola moze byc null?
+            if (pola.Count != statek.Dlugosc) return false;
 
             pola.ForEach(p => p.TypPola = RodzajPola.Statek);
             return true;
-
         }
     }
     public enum Kierunek

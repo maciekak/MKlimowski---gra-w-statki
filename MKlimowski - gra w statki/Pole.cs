@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MKlimowski___gra_w_statki
 {
-    public class Pole
+    public class Pole : IPolozenie
     {
         public int X { get; }
         public int Y { get; }
