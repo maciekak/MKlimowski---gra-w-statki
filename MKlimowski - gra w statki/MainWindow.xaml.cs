@@ -40,7 +40,7 @@ namespace MKlimowski___gra_w_statki
 
             this.StworzPlansze(PlanszaKomputera, szerokoscKolumny, wysokoscWiersza);
             this.StworzPlansze(PlanszaGracza, szerokoscKolumny, wysokoscWiersza);
-
+            
             Gra = new Rozgrywka();
             StanGry = Stan.Start;
         }
@@ -80,7 +80,6 @@ namespace MKlimowski___gra_w_statki
                     {
                         Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Nieodkryte-pole.png"))
                     };
-
                     pole.SetValue(Grid.RowProperty, x);
                     pole.SetValue(Grid.ColumnProperty, y);
                     plansza.Children.Add(pole);
@@ -91,24 +90,21 @@ namespace MKlimowski___gra_w_statki
             //plansza.ShowGridLines = true;
         }
 
-        private void Rysuj()
+        public void Rysuj()
         {
-            Action EmptyDelegate = delegate() { };
             //Rysuj plansze Gracza
             foreach (var pole in Gra.Gracza.ListaPol)
             {
-                var element = PlanszaGracza.Children.Cast<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
+                var element = PlanszaGracza.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
                 element.Source = new BitmapImage(UriObrazkow[pole.TypPola]);
-                //element.Dispatcher.Invoke(DispatcherPriority.Render, EmptyDelegate);
             }
 
             //Rysuj plansze komputera
             foreach (var pole in Gra.Komputera.ListaPol)
             {
-                var element = PlanszaGracza.Children.Cast<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
+                var element = PlanszaKomputera.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
                 //Jesli polem jest statek, to ustaw jako puste, zeby gracz nie widzial gdzie statki ma komputer
                 element.Source = pole.TypPola == RodzajPola.Statek ? new BitmapImage(UriObrazkow[RodzajPola.Puste]) : new BitmapImage(UriObrazkow[pole.TypPola]);
-                //element.Dispatcher.Invoke(DispatcherPriority.Render, EmptyDelegate);
             }
         }
 
