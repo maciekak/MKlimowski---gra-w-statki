@@ -213,12 +213,16 @@ namespace MKlimowski___gra_w_statki
                 case Stan.RuchGracza:
                     Przebieg.IsEnabled = true;
                     Przebieg.Content = "Zakończ ruch komputera";
+                    StanGry = Stan.RuchKomputera;
                     break;
 
                 case Stan.RuchKomputera:
                     //TODO: ustawic to na koniec rozgrywki
-//                    Przebieg.IsEnabled = true;
-//                    Przebieg.Content = "KONIEC";
+                    //                    Przebieg.IsEnabled = true;
+                    //                    Przebieg.Content = "KONIEC";
+                    Gra.RuchKomputera();
+                    StanGry = Stan.RuchGracza;
+                    Rysuj();
                     break;
 
                 case Stan.Koniec:
