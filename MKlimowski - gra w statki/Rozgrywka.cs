@@ -26,5 +26,4 @@ namespace MKlimowski___gra_w_statki
             Plansza.UstawStatek(Player.PlanszaUzytkownika.ListaPol, new Statek(1) { X = 8, Y = 8, Kierunek = Kierunek.Prawo });
         }
     }
-
 }

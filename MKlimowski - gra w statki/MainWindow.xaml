@@ -9,7 +9,9 @@
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="80"/>
-            <RowDefinition Height="400"/>
+            <RowDefinition Height="159"/>
+            <RowDefinition Height="161"/>
+            <RowDefinition Height="80"/>
             <RowDefinition Height="120"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -24,17 +26,20 @@
         <Border Grid.Column="3" Grid.Row="0" Background="#FF3C3C3F">
             <TextBlock x:Name="NaglowekKomputera" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Plansza Komputera" VerticalAlignment="Center" FontWeight="Bold" FontSize="42"/>
         </Border>
-        <Border Grid.Column="0" Grid.Row="2" Background="#FF7E7E7E">
+        <Border Grid.Column="0" Grid.Row="4" Background="#FF7E7E7E">
             <TextBlock x:Name="StatystkiGracz" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Statystyki Gracza:" VerticalAlignment="Top"/>
         </Border>
-        <Border Grid.Column="3" Grid.Row="2" Background="#FF7E7E7E">
+        <Border Grid.Column="3" Grid.Row="4" Background="#FF7E7E7E">
             <TextBlock x:Name="StatystkiKomputer" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Statystyki Komputera:" VerticalAlignment="Top"/>
         </Border>
-        <Border Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Background="#FFDEDEDE">
+        <Border Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Background="#FFDEDEDE" Grid.RowSpan="3">
         </Border>
-        <TextBlock x:Name="Instukcje" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Instrukcja" VerticalAlignment="Center" Grid.ColumnSpan="2" FontSize="16"/>
-        <Grid x:Name ="PlanszaGracza" HorizontalAlignment="Left" Grid.Row="1" Grid.Column ="0" VerticalAlignment="Top"/>
-        <Grid x:Name ="PlanszaKomputera" HorizontalAlignment="Left" Grid.Row="1" Grid.Column ="3" VerticalAlignment="Top"/>
-        <Button x:Name="Przebieg" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="2" Content="START" Grid.ColumnSpan="2" Height="120" Width="300" Background="#FF45B840" Click="Przebieg_Click"/>
+        <TextBlock x:Name="Informacje" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Informacje" VerticalAlignment="Stretch" TextAlignment="Justify"/>
+        <TextBlock x:Name="Instukcje" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Instrukcja" VerticalAlignment="Stretch" Grid.ColumnSpan="2" FontSize="16" TextAlignment="Justify"/>
+        <Grid x:Name ="PlanszaGracza" HorizontalAlignment="Stretch" Grid.RowSpan="3" Grid.Row="1" Grid.Column ="0" VerticalAlignment="Stretch"/>
+        <Grid x:Name ="PlanszaKomputera" HorizontalAlignment="Stretch" Grid.RowSpan="3" Grid.Row="1" Grid.Column ="3" VerticalAlignment="Stretch"/>
+        <Button x:Name="Przebieg" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="4" Content="START" Grid.ColumnSpan="2" Background="#FF45B840" Click="Przebieg_Click"/>
+        <Button x:Name="Reset" Grid.Column="2" HorizontalAlignment="Stretch" Grid.Row="3" VerticalAlignment="Stretch" Content="Reset" Click="Reset_Click" Visibility="Hidden"/>
+        <Button x:Name="Losuj" Content="Losuj" HorizontalAlignment="Stretch" Grid.Row="3" Grid.Column="1" VerticalAlignment="Stretch" Click="Losuj_Click" Visibility="Hidden"/>
     </Grid>
 </Window>

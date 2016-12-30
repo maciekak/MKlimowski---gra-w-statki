@@ -34,6 +34,99 @@ namespace MKlimowski___gra_w_statki
             }
         }
 
+        public AkcjaPoStrzale Strzal(int x, int y)
+        {
+            var pole = PlanszaUzytkownika.ListaPol.First(p => p.PorownajPolozenie(x, y));
+
+            switch(pole.TypPola)
+            {
+                case RodzajPola.Puste:
+                    pole.TypPola = RodzajPola.Pudlo;
+                    return AkcjaPoStrzale.Pudlo;
+                case RodzajPola.Pudlo:
+                    return AkcjaPoStrzale.Blad;
+                case RodzajPola.Trafiony:
+                    return AkcjaPoStrzale.Blad;
+                case RodzajPola.Statek:
+                    pole.TypPola = RodzajPola.Trafiony;
+                    return Zatop(pole) ? AkcjaPoStrzale.Zatopiony : AkcjaPoStrzale.Trafiony;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private bool Zatop(Pole pole)
+        {
+            var zbierzTrafionePola = new List<Pole> {pole};
+
+
+            // Sprawdzanie czy na lewo jest statek
+            var ostatniX = pole.X - 1;
+            while (true)
+            {
+                var sasiedniePole =
+                    PlanszaUzytkownika.ListaPol.FirstOrDefault(p => p.PorownajPolozenie(ostatniX, pole.Y));
+
+                if (sasiedniePole == null || sasiedniePole.TypPola == RodzajPola.Pudlo ||
+                    sasiedniePole.TypPola == RodzajPola.Puste) break;
+                //Jesli jest nietrafione pole ze statkiem to mamy pewnosc, ze statek nie jest zatopiony - analogicznie w kazdym
+                if (sasiedniePole.TypPola == RodzajPola.Statek) return false;
+                zbierzTrafionePola.Add(sasiedniePole);
+                ostatniX--;
+            }
+
+            // Sprawdzanie czy na prawo jest statek
+            ostatniX = pole.X + 1;
+            while (true)
+            {
+                var sasiedniePole =
+                    PlanszaUzytkownika.ListaPol.FirstOrDefault(p => p.PorownajPolozenie(ostatniX, pole.Y));
+                if (sasiedniePole == null || sasiedniePole.TypPola == RodzajPola.Pudlo ||
+                    sasiedniePole.TypPola == RodzajPola.Puste) break;
+                if (sasiedniePole.TypPola == RodzajPola.Statek) return false;
+                zbierzTrafionePola.Add(sasiedniePole);
+                ostatniX++;
+            }
+
+            // Sprawdzanie czy w gore jest statek
+            int ostatniY = pole.Y - 1;
+            while (true)
+            {
+                var sasiedniePole =
+                    PlanszaUzytkownika.ListaPol.FirstOrDefault(p => p.PorownajPolozenie(pole.X, ostatniY));
+                if (sasiedniePole == null || sasiedniePole.TypPola == RodzajPola.Pudlo ||
+                    sasiedniePole.TypPola == RodzajPola.Puste) break;
+                if (sasiedniePole.TypPola == RodzajPola.Statek) return false;
+                zbierzTrafionePola.Add(sasiedniePole);
+                ostatniY--;
+            }
+
+            // Sprawdzanie czy w dol jest statek
+            ostatniY = pole.Y + 1;
+            while (true)
+            {
+                var sasiedniePole =
+                    PlanszaUzytkownika.ListaPol.FirstOrDefault(p => p.PorownajPolozenie(pole.X, ostatniY));
+                if (sasiedniePole == null || sasiedniePole.TypPola == RodzajPola.Pudlo ||
+                    sasiedniePole.TypPola == RodzajPola.Puste) break;
+                if (sasiedniePole.TypPola == RodzajPola.Statek) return false;
+                zbierzTrafionePola.Add(sasiedniePole);
+                ostatniY++;
+            }
+
+            var okolica = PlanszaUzytkownika.ZnajdzOkolice(zbierzTrafionePola);
+
+            //Ustawia wszystkie sasiednie pola statku jako pudla
+            okolica.ForEach(p => p.TypPola = RodzajPola.Pudlo);
+            return true;
+        }
+
+        public bool CzyKoniec()
+        {
+            //Jesli nie ma zadnego pola ze statkiem to zwraca prawde
+            return !PlanszaUzytkownika.ListaPol.Exists(p => p.TypPola == RodzajPola.Statek);
+        }
+
         protected Uzytkownik()
         {
             PlanszaUzytkownika = new Plansza();
@@ -47,5 +140,10 @@ namespace MKlimowski___gra_w_statki
                 }
             }
         }
+    }
+
+    public enum AkcjaPoStrzale
+    {
+        Trafiony, Pudlo, Zatopiony, Blad
     }
 }

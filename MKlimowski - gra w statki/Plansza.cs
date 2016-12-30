@@ -42,18 +42,24 @@ namespace MKlimowski___gra_w_statki
             return listaPol.Remove(itemToRemove);
         }
 
+        public List<Pole> ZnajdzOkolice(List<Pole> pola)
+        {
+            var okolica = pola.SelectMany(p => ListaPol.Where(a => a.CzyWOkolicy(p.X, p.Y))).ToList();
+
+            okolica = okolica.Distinct().ToList();
+            okolica.RemoveAll(pola.Contains);
+
+            return okolica;
+        }
+
         public bool UsunPoleIOkolice(int x, int y)
         {
-            int iloscElementow = ListaPol.Count;
-
-            var itemsToRemove = ListaPol.Where(p => p.CzyWOkolicy(x, y)).ToList();
-            itemsToRemove.ForEach(p => ListaPol.Remove(p));
-
-            return iloscElementow != ListaPol.Count;
+            return ListaPol.Count == ListaPol.RemoveAll(p => p.CzyWOkolicy(x, y));
         }
 
         public static bool UsunStatekIOkolice(List<Pole> polaPlanszy, Statek statek)
         {
+            //TODO: gownokod przerobic z wykorzystaniem powyzszej metody
             int dlugoscPierwotnaListy = polaPlanszy.Count;
             List<Pole> pola;
             switch (statek.Kierunek)
