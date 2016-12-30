@@ -108,12 +108,31 @@ namespace MKlimowski___gra_w_statki
                     {
                         Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Nieodkryte-pole.png"))
                     };
+                    var n = new Button();
+                    n.Background = new ImageBrush()
+                    {
+                        ImageSource = new BitmapImage()
+                    };
                     pole.SetValue(Grid.RowProperty, x);
                     pole.SetValue(Grid.ColumnProperty, y);
                     plansza.Children.Add(pole);
+                    pole.AddHandler(Image.MouseDownEvent, new RoutedEventHandler(image_klikniecie));
                 }
             }
             
+        }
+
+        private void image_klikniecie(object sender, RoutedEventArgs e)
+        {
+            //Dodac rozroznianie plansz
+            if (StanGry != Stan.RuchGracza) return;
+            var x = Grid.GetColumn((Image) sender);
+            var y = Grid.GetRow((Image) sender);
+            var n = PlanszaKomputera.Children.OfType<Image>().First(p => p == sender as Image);
+            n.Source = new BitmapImage(UriObrazkow[RodzajPola.Pudlo]);
+
+            Przebieg.IsEnabled = true;
+            return;
         }
 
         public void Rysuj()
@@ -123,6 +142,9 @@ namespace MKlimowski___gra_w_statki
             {
                 var element = PlanszaGracza.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
                 element.Source = new BitmapImage(UriObrazkow[pole.TypPola]);
+//                element.Cursor = pole.TypPola == RodzajPola.Pudlo || pole.TypPola == RodzajPola.Trafiony
+//                    ? Cursors.Arrow
+//                    : Cursors.Hand;
             }
 
             //Rysuj plansze komputera
@@ -130,7 +152,10 @@ namespace MKlimowski___gra_w_statki
             {
                 var element = PlanszaKomputera.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
                 //Jesli polem jest statek, to ustaw jako puste, zeby gracz nie widzial gdzie statki ma komputer
-                element.Source = /*pole.TypPola == RodzajPola.Statek ? new BitmapImage(UriObrazkow[RodzajPola.Puste]) :*/ new BitmapImage(UriObrazkow[pole.TypPola]);
+                element.Source = /*pole.TypPola == RodzajPola.Statek ? new BitmapImage(UriObrazkow[RodzajPola.Puste]) :*/ new BitmapImage(UriObrazkow[pole.TypPola]); //TODO: odkomentowac
+                element.Cursor = pole.TypPola == RodzajPola.Pudlo || pole.TypPola == RodzajPola.Trafiony
+                    ? Cursors.Arrow
+                    : Cursors.Hand;
             }
         }
 
@@ -155,6 +180,7 @@ namespace MKlimowski___gra_w_statki
                     Rysuj();
                     Przebieg.IsEnabled = false;
                     Przebieg.Content = "Zakończ swój ruch";
+                    Instukcje.Text = "Intrukcje:\nZaznacz pole na planszy komputera gdzie chcesz strzelić";
                     break;
                 case Stan.RuchGracza:
                     Przebieg.IsEnabled = true;
