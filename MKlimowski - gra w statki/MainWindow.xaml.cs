@@ -26,6 +26,7 @@ namespace MKlimowski___gra_w_statki
         private Rozgrywka Gra { get; }
         private Dictionary<RodzajPola, Uri> UriObrazkow { get; set; }
         private Stan StanGry { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -84,11 +85,6 @@ namespace MKlimowski___gra_w_statki
                     {
                         Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Nieodkryte-pole.png"))
                     };
-                    var n = new Button();
-                    n.Background = new ImageBrush()
-                    {
-                        ImageSource = new BitmapImage()
-                    };
                     pole.SetValue(Grid.RowProperty, x);
                     pole.SetValue(Grid.ColumnProperty, y);
                     plansza.Children.Add(pole);
@@ -97,16 +93,15 @@ namespace MKlimowski___gra_w_statki
             
         }
 
-        public void Rysuj()
+        public void Rysuj(bool czyUstawiacKursorLapki = true)
         {
+            var kursor = czyUstawiacKursorLapki ? Cursors.Hand : Cursors.Arrow;
+
             //Rysuj plansze Gracza
             foreach (var pole in Gra.Player.PlanszaUzytkownika.ListaPol)
             {
                 var element = PlanszaGracza.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
                 element.Source = new BitmapImage(UriObrazkow[pole.TypPola]);
-//                element.Cursor = pole.TypPola == RodzajPola.Pudlo || pole.TypPola == RodzajPola.Trafiony
-//                    ? Cursors.Arrow
-//                    : Cursors.Hand;
             }
 
             //Rysuj plansze komputera
@@ -117,7 +112,7 @@ namespace MKlimowski___gra_w_statki
                 element.Source = /*pole.TypPola == RodzajPola.Statek ? new BitmapImage(UriObrazkow[RodzajPola.Puste]) :*/ new BitmapImage(UriObrazkow[pole.TypPola]); //TODO: odkomentowac
                 element.Cursor = pole.TypPola == RodzajPola.Pudlo || pole.TypPola == RodzajPola.Trafiony
                     ? Cursors.Arrow
-                    : Cursors.Hand;
+                    : kursor;
             }
         }
 
@@ -138,12 +133,19 @@ namespace MKlimowski___gra_w_statki
             {
                 case AkcjaPoStrzale.Trafiony:
                     Informacje.Text = "Trafiony!";
+                    Przebieg.IsEnabled = false;
+                    StanGry = Stan.RuchGracza;
                     break;
                 case AkcjaPoStrzale.Pudlo:
+                    Przebieg.IsEnabled = true;
                     Informacje.Text = "Pudło!";
+                    StanGry = Stan.RuchKomputera;
+                    //TODO: obsluga kursora
                     break;
                 case AkcjaPoStrzale.Zatopiony:
                     Informacje.Text = "Trafiony Zatopiony!";
+                    Przebieg.IsEnabled = false;
+                    StanGry = Stan.RuchGracza;
                     //Jesli Gracz wygral
                     if (Gra.PrzeciwnikKomputerowy.CzyKoniec())
                     {
@@ -151,18 +153,20 @@ namespace MKlimowski___gra_w_statki
                     }
                     break;
                 case AkcjaPoStrzale.Blad:
-                    Informacje.Text = "!!!BŁĄD!!!";
+                    Informacje.Text = "Tu już strzelałeś";
                     return;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            Przebieg.IsEnabled = true;
-            Rysuj();
+            Rysuj(StanGry == Stan.RuchGracza);
         }
 
         private void ZakonczGre(Uzytkownik uzytkownik)
         {
             StanGry = Stan.Koniec;
+            Rysuj();
+            Przebieg.Content = "KONIEC";
+            Przebieg.IsEnabled = true;
             UstawKursorPlanszy(PlanszaKomputera, Cursors.Arrow);
             UstawKursorPlanszy(PlanszaGracza, Cursors.Arrow);
             if (uzytkownik is Gracz)
@@ -196,11 +200,6 @@ namespace MKlimowski___gra_w_statki
                 case Stan.Rozstawianie:
                     Losuj.Visibility = Visibility.Hidden;
                     Reset.Visibility = Visibility.Hidden;
-                    Rysuj();
-                    StanGry = Stan.KoniecRozstawiania;
-                    break;
-
-                case Stan.KoniecRozstawiania:
                     StanGry = Stan.RuchGracza;
                     Gra.PrzeciwnikKomputerowy.LosujStatki();
                     Rysuj();
@@ -220,8 +219,29 @@ namespace MKlimowski___gra_w_statki
                     //TODO: ustawic to na koniec rozgrywki
                     //                    Przebieg.IsEnabled = true;
                     //                    Przebieg.Content = "KONIEC";
-                    Gra.RuchKomputera();
+                    if (Gra.RuchKomputera())
+                        ZakonczGre(Gra.PrzeciwnikKomputerowy);
+                    else if (Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Trafiony ||
+                             Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Zatopiony)
+                    {
+                        StanGry = Stan.RuchKomputera;
+                        Przebieg.Content = "Zakończ ruch komputera";
+                        Przebieg.IsEnabled = true;
+                        Rysuj(false);
+                    }
+                    else
+                    {
+                        StanGry = Stan.WciazRuchKomputera;
+                        Przebieg.Content = "Zakończ ruch komputera";
+                        Przebieg.IsEnabled = true;
+                        Rysuj(false);
+                    }
+                    break;
+
+                case Stan.WciazRuchKomputera:
                     StanGry = Stan.RuchGracza;
+                    Przebieg.Content = "Zakończ swój ruch";
+                    Przebieg.IsEnabled = false;
                     Rysuj();
                     break;
 
@@ -238,7 +258,7 @@ namespace MKlimowski___gra_w_statki
 
             Gra.Player.Resetuj();
             Przebieg.IsEnabled = false;
-            Rysuj();
+            Rysuj(false);
         }
 
         private void Losuj_Click(object sender, RoutedEventArgs e)
@@ -247,13 +267,13 @@ namespace MKlimowski___gra_w_statki
 
             Gra.Player.LosujStatki();
             Przebieg.IsEnabled = true;
-            Rysuj();
+            Rysuj(false);
         }
     }
 
     //TODO: nie wiem czy ten plik
     public enum Stan
     {
-        Start, Rozstawianie, KoniecRozstawiania, RuchGracza, RuchKomputera, Koniec
+        Start, Rozstawianie, RuchGracza, RuchKomputera, WciazRuchKomputera, Koniec
     }
 }

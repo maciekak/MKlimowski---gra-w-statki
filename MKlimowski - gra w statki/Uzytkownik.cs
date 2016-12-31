@@ -11,6 +11,7 @@ namespace MKlimowski___gra_w_statki
         public const int IloscStatkow = 4;
         public List<Statek> Statki { get; set; }
         public Plansza PlanszaUzytkownika { get; set; }
+        public AkcjaPoStrzale OstatniaAkcja { get; set; }
         public void LosujStatki()
         {
             var listaMozliwychPol = new List<Pole>();

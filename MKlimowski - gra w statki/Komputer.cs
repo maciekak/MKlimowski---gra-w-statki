@@ -23,7 +23,8 @@ namespace MKlimowski___gra_w_statki
                         : LogikaStrzelania.ZKierunkiem;
                     break;
                 case AkcjaPoStrzale.Pudlo:
-                    OstatniTypStrzelania = LogikaStrzelania.Normalny;
+                    //Nic nie robimy, bo jesli bylo 'trafiony' to dalej strzela w ten statek
+                    //jesli byl 'normalny' to dalej bedzie celowal po calej planszy
                     break;
                 case AkcjaPoStrzale.Zatopiony:
                     OstatniTypStrzelania = LogikaStrzelania.Normalny;

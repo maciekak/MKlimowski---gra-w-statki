@@ -20,8 +20,8 @@ namespace MKlimowski___gra_w_statki
         public bool RuchKomputera()
         {
             var wylosowanePole = PrzeciwnikKomputerowy.LosujPole(Player.PlanszaUzytkownika);
-            var akcja = PrzeciwnikKomputerowy.Strzal(wylosowanePole.X, wylosowanePole.Y);
-            PrzeciwnikKomputerowy.UstawOstatniTypStrzelania(akcja);
+            PrzeciwnikKomputerowy.OstatniaAkcja = Player.Strzal(wylosowanePole.X, wylosowanePole.Y);
+            PrzeciwnikKomputerowy.UstawOstatniTypStrzelania(PrzeciwnikKomputerowy.OstatniaAkcja);
             return Player.CzyKoniec();
         }
 
