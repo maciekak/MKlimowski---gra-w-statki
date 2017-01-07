@@ -5,41 +5,67 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MKlimowski___gra_w_statki"
         mc:Ignorable="d"
-        Title="Gra w statki" Height="630" Width="1116" ResizeMode="CanMinimize" FontSize="24">
+        Title="Gra w statki" Height="630" Width="1136" ResizeMode="CanMinimize" FontSize="24">
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="80"/>
-            <RowDefinition Height="159"/>
-            <RowDefinition Height="161"/>
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="400"/>
             <RowDefinition Height="120"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400"/>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="320"/>
             <ColumnDefinition Width="400"/>
         </Grid.ColumnDefinitions>
         <Border Grid.Column="0" Grid.Row="0" Background="#FF3C3C3F">
             <TextBlock x:Name="NaglowekGracza" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Twoja Plansza" VerticalAlignment="Center" FontWeight="Bold" FontSize="42"/>
         </Border>
-        <Border Grid.Column="3" Grid.Row="0" Background="#FF3C3C3F">
+        <Border Grid.Column="2" Grid.Row="0" Background="#FF3C3C3F">
             <TextBlock x:Name="NaglowekKomputera" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Plansza Komputera" VerticalAlignment="Center" FontWeight="Bold" FontSize="42"/>
         </Border>
-        <Border Grid.Column="0" Grid.Row="4" Background="#FF7E7E7E">
+        <Border Grid.Column="0" Grid.Row="2" Background="#FF7E7E7E">
             <TextBlock x:Name="StatystkiGracz" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Statystyki Gracza:" VerticalAlignment="Top"/>
         </Border>
-        <Border Grid.Column="3" Grid.Row="4" Background="#FF7E7E7E">
+        <Border Grid.Column="2" Grid.Row="2" Background="#FF7E7E7E">
             <TextBlock x:Name="StatystkiKomputer" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Statystyki Komputera:" VerticalAlignment="Top"/>
         </Border>
-        <Border Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Background="#FFDEDEDE" Grid.RowSpan="3">
+        <TextBlock x:Name="Instukcje" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Instrukcja" VerticalAlignment="Stretch" FontSize="16" TextAlignment="Justify"/>
+        <Grid x:Name ="PlanszaGracza" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column ="0" VerticalAlignment="Stretch"/>
+        <Grid x:Name ="PlanszaKomputera" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column ="2" VerticalAlignment="Stretch"/>
+        <Button x:Name="Przebieg" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="2" Content="START" Background="#FF45B840" Click="Przebieg_Click"/>
+        <Border Grid.Column="1" Grid.Row="1" Background="#FFDEDEDE">
+            <Grid x:Name="InformacyjnyGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="60"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="#FFDDE445"/>
+                <Border x:Name="RamkaJednomasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Background="#FFDADCAF" Visibility="Hidden"/>
+                <Border x:Name="RamkaDwumasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Background="#FFDDE445" Visibility="Hidden"/>
+                <Border x:Name="RamkaTrojmasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Background="#FFDADCAF" Visibility="Hidden"/>
+                <Border x:Name="RamkaCzteromasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Background="#FFDDE445" Visibility="Hidden"/>
+                <TextBlock x:Name="Informacje" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Informacje" VerticalAlignment="Stretch" TextAlignment="Justify"/>
+                <Button x:Name="Reset" Grid.Column="1" HorizontalAlignment="Stretch" Grid.Row="6" VerticalAlignment="Stretch" Content="Reset" Click="Reset_Click" Background="#FF93FFFF" Visibility="Hidden"/>
+                <Button x:Name="Losuj" Content="Losuj" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="0" VerticalAlignment="Stretch" Click="Losuj_Click" Background="#FF93FFFF" Visibility="Hidden"/>
+                <Button x:Name="Obroc" Content="Obróć" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FF2B4DC1" Visibility="Hidden" Click="Obroc_Click"/>
+                <Image x:Name="Czteromasztowiec" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
+                <Image x:Name="Trojmasztowiec" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
+                <Image x:Name="Dwumasztowiec" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
+                <Image x:Name="Jednomasztowiec" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
+                <Label x:Name="OpisCzteromasztowca" Content="x 1" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
+                <Label x:Name="OpisTrojmasztowca" Content="x 2" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
+                <Label x:Name="OpisDwumasztowca" Content="x 3" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
+                <Label x:Name="OpisJednomasztowca" Content="x 4" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
+            </Grid>
         </Border>
-        <TextBlock x:Name="Informacje" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Informacje" VerticalAlignment="Stretch" TextAlignment="Justify"/>
-        <TextBlock x:Name="Instukcje" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Instrukcja" VerticalAlignment="Stretch" Grid.ColumnSpan="2" FontSize="16" TextAlignment="Justify"/>
-        <Grid x:Name ="PlanszaGracza" HorizontalAlignment="Stretch" Grid.RowSpan="3" Grid.Row="1" Grid.Column ="0" VerticalAlignment="Stretch"/>
-        <Grid x:Name ="PlanszaKomputera" HorizontalAlignment="Stretch" Grid.RowSpan="3" Grid.Row="1" Grid.Column ="3" VerticalAlignment="Stretch"/>
-        <Button x:Name="Przebieg" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="4" Content="START" Grid.ColumnSpan="2" Background="#FF45B840" Click="Przebieg_Click"/>
-        <Button x:Name="Reset" Grid.Column="2" HorizontalAlignment="Stretch" Grid.Row="3" VerticalAlignment="Stretch" Content="Reset" Click="Reset_Click" Visibility="Hidden"/>
-        <Button x:Name="Losuj" Content="Losuj" HorizontalAlignment="Stretch" Grid.Row="3" Grid.Column="1" VerticalAlignment="Stretch" Click="Losuj_Click" Visibility="Hidden"/>
     </Grid>
 </Window>

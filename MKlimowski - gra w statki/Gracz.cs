@@ -23,5 +23,10 @@ namespace MKlimowski___gra_w_statki
             //Reset Planszy
             PlanszaUzytkownika.Zeruj();
         }
+
+        public bool CzyUstawiono()
+        {
+            return !Statki.Exists(x => x.CzyUstawiony == false);
+        }
     }
 }
