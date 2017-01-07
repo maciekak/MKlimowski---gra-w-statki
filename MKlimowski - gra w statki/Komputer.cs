@@ -112,8 +112,12 @@ namespace MKlimowski___gra_w_statki
 
                             //Losowanie Pola
                             wylosowana = generator.Next(zbierzPolaDoStrzelania.Count);
-                            OstatniePole = zbierzPolaDoStrzelania[wylosowana];
-                            return OstatniePole;
+                            var losowePole = zbierzPolaDoStrzelania[wylosowana];
+                            if (losowePole.TypPola == RodzajPola.Statek)
+                            {
+                                OstatniePole = losowePole;
+                            }
+                            return losowePole;
                         case Kierunek.Prawo:
                             //Idziemy w prawo
                             int x = OstatniePole.X + 1;
@@ -131,7 +135,7 @@ namespace MKlimowski___gra_w_statki
                                 }
                                 x++;
                             }
-                            //Idziemy w dol
+                            //Idziemy w lewo
                              x = OstatniePole.X - 1;
                             while (true)
                             {
@@ -150,8 +154,12 @@ namespace MKlimowski___gra_w_statki
 
                             //Losowanie Pola
                             wylosowana = generator.Next(zbierzPolaDoStrzelania.Count);
-                            OstatniePole = zbierzPolaDoStrzelania[wylosowana];
-                            return OstatniePole;
+                            var wylosowanePole = zbierzPolaDoStrzelania[wylosowana];
+                            if (wylosowanePole.TypPola == RodzajPola.Statek)
+                            {
+                                OstatniePole = wylosowanePole;
+                            }
+                            return wylosowanePole;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
