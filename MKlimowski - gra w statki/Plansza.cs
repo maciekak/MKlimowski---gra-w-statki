@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace MKlimowski___gra_w_statki
 {
@@ -103,6 +104,106 @@ namespace MKlimowski___gra_w_statki
 
             pola.ForEach(p => p.TypPola = RodzajPola.Statek);
             return true;
+        }
+
+        private void UstawPriorytet(Pole pole, int dlugosc)
+        {
+            if (pole.TypPola == RodzajPola.Trafiony || pole.TypPola == RodzajPola.Pudlo)
+            {
+                pole.Priorytet = 0;
+                return;
+            }
+
+            int iloscPolPoziomo = 1;
+            //Dodajemy kolejne pola w prawo
+            for(int x = pole.X + 1; x < pole.X + dlugosc; x++)
+            {
+                var znalezionePole =
+                    ListaPol.SingleOrDefault(
+                        p => p.PorownajPolozenie(x, pole.Y));
+
+                if (znalezionePole == null || znalezionePole.TypPola == RodzajPola.Trafiony || znalezionePole.TypPola == RodzajPola.Pudlo)
+                    break;
+
+                iloscPolPoziomo++;
+            }
+            //Dodajemy kolejne pola w lewo
+            for (int x = pole.X - 1; x > pole.X - dlugosc; x--)
+            {
+                var znalezionePole =
+                    ListaPol.SingleOrDefault(
+                        p => p.PorownajPolozenie(x, pole.Y));
+
+                if (znalezionePole == null || znalezionePole.TypPola == RodzajPola.Trafiony || znalezionePole.TypPola == RodzajPola.Pudlo)
+                    break;
+
+                iloscPolPoziomo++;
+            }
+
+            int iloscPolPionowo = 1;
+            //Dodajemy kolejne pola w dol
+            for (int y = pole.Y + 1; y < pole.Y + dlugosc; y++)
+            {
+                var znalezionePole =
+                    ListaPol.SingleOrDefault(
+                        p => p.PorownajPolozenie(pole.X, y));
+
+                if (znalezionePole == null || znalezionePole.TypPola == RodzajPola.Trafiony || znalezionePole.TypPola == RodzajPola.Pudlo)
+                    break;
+
+                iloscPolPionowo++;
+            }
+            //Dodajemy kolejne pola w gore
+            for (int y = pole.Y - 1; y > pole.Y - dlugosc; y--)
+            {
+                var znalezionePole =
+                    ListaPol.SingleOrDefault(
+                        p => p.PorownajPolozenie(pole.X, y));
+
+                if (znalezionePole == null || znalezionePole.TypPola == RodzajPola.Trafiony || znalezionePole.TypPola == RodzajPola.Pudlo)
+                    break;
+
+                iloscPolPionowo++;
+            }
+
+            int iloscMozliwosciPionowo = iloscPolPionowo - dlugosc + 1;
+            int iloscMozliwosciPoziomo = iloscPolPoziomo - dlugosc + 1;
+
+            int priorytet = iloscMozliwosciPoziomo > 0 ? iloscMozliwosciPoziomo : 0;
+            priorytet += iloscMozliwosciPionowo > 0 ? iloscMozliwosciPionowo : 0;
+
+            pole.Priorytet = priorytet;
+        }
+
+        public List<Pole> ZnajdzPriorytetowaListePolDlaNajdluzszegoStatku(List<Statek> statki)
+        {
+            int dlugosc;
+            for (dlugosc = 4; dlugosc > 0; dlugosc--)
+            {
+                int ilosc = statki.Count(s => s.CzyZatopiony == false && s.Dlugosc == dlugosc);
+                if (ilosc > 0)
+                    break;
+            }
+
+            if (dlugosc <= 0)
+                throw new ValueUnavailableException("Brak niezatopionych statkow");
+
+            if (dlugosc == 1)
+            {
+                var pola = ListaPol.Where(p => p.TypPola == RodzajPola.Puste || p.TypPola == RodzajPola.Statek).ToList();
+                pola.ForEach(p => p.Priorytet = 1);
+                return pola;
+            }
+
+            var polaZPriorytetami = new List<Pole>();
+            foreach (var pole in ListaPol)
+            {
+                UstawPriorytet(pole, dlugosc);
+                if(pole.Priorytet > 0)
+                    polaZPriorytetami.Add(pole);
+            }
+
+            return polaZPriorytetami;
         }
     }
     public enum Kierunek

@@ -34,7 +34,7 @@ namespace MKlimowski___gra_w_statki
         public MainWindow()
         {
             InitializeComponent();
-            Instukcje.Text = "Instrukcje:\nRozmiesc swoje statki.";
+            Instrukcje.Text = "Instrukcje:\nNaciśnij START.";
             
             double szerokoscKolumny = MainGrid.ColumnDefinitions[0].Width.Value / Wymiar;
             double wysokoscWiersza = (MainGrid.RowDefinitions[1].Height.Value) / Wymiar;
@@ -173,6 +173,7 @@ namespace MKlimowski___gra_w_statki
             Przebieg.Content = "Rozstawione";
             Przebieg.IsEnabled = false;
             Informacje.Text = "Statki:";
+            Instrukcje.Text = "Intrukcje:\nWybierz statek, a następnie wybierz mu miejsce na planszy.";
 
             UstawKursorPlanszy(InformacyjnyGrid, Cursors.Hand);
 
@@ -415,11 +416,11 @@ namespace MKlimowski___gra_w_statki
             UstawKursorPlanszy(PlanszaGracza, Cursors.Arrow);
             if (uzytkownik is Gracz)
             {
-                Instukcje.Text = "Brawo!\nRozwliłeś komputera.";
+                Instrukcje.Text = "Brawo!\nRozwliłeś komputera.";
             }
             else if(uzytkownik is Komputer)
             {
-                Instukcje.Text = "Beznadziejnie!\nKomputer z Tobą wygrał.";
+                Instrukcje.Text = "Beznadziejnie!\nKomputer z Tobą wygrał.";
 
             }
             else
@@ -497,7 +498,7 @@ namespace MKlimowski___gra_w_statki
                     Rysuj();
                     Przebieg.IsEnabled = false;
                     Przebieg.Content = "Twój Ruch";
-                    Instukcje.Text = "Intrukcje:\nZaznacz pole na planszy komputera gdzie chcesz strzelić";
+                    Instrukcje.Text = "Intrukcje:\nZaznacz pole na planszy komputera gdzie chcesz strzelić";
                     PrzypiszEventPrzyciskuPlanszy(PlanszaKomputera, Image_StrzelanieWPolaKomputera, MouseLeftButtonDownEvent);
                     break;
                 case Stan.Koniec:

@@ -36,7 +36,7 @@ namespace MKlimowski___gra_w_statki
                     throw new ArgumentOutOfRangeException(nameof(akcja), akcja, null);
             }
         }
-        public Pole LosujPole(Plansza planszaGracza)
+        public Pole LosujPole(Plansza planszaGracza, List<Statek> statki)
         {
             var listaMozliwychPolDoStrzalu =
                 planszaGracza.ListaPol.Where(p => p.TypPola == RodzajPola.Puste || p.TypPola == RodzajPola.Statek).ToList();
@@ -46,11 +46,12 @@ namespace MKlimowski___gra_w_statki
             {
                 case LogikaStrzelania.Normalny:
 
-                    wylosowana = generator.Next(listaMozliwychPolDoStrzalu.Count());
-                    
-                    OstatniePole = listaMozliwychPolDoStrzalu[wylosowana];
+                    var priorytetowaListaPolDlaNajdluzszegoStatku =
+                        planszaGracza.ZnajdzPriorytetowaListePolDlaNajdluzszegoStatku(statki);
 
+                    OstatniePole = LosujPriorytetowo(priorytetowaListaPolDlaNajdluzszegoStatku);
                     return OstatniePole;
+
                 case LogikaStrzelania.Trafiony:
                     //Pobiera okolice po kwadracie
                     var pola =
@@ -168,6 +169,20 @@ namespace MKlimowski___gra_w_statki
             }
         }
 
+        private static Pole LosujPriorytetowo(List<Pole> priorytetowaLista)
+        {
+            var plaskaLista = new List<Pole>();
+
+            foreach (var pole in priorytetowaLista)
+            {
+                plaskaLista.AddRange(Enumerable.Repeat(pole, pole.Priorytet));
+            }
+
+            var generator = new Random(new object().GetHashCode());
+            int wylosowana = generator.Next(plaskaLista.Count);
+            return plaskaLista[wylosowana];
+        }
+
         public Komputer()
         {
             OstatniTypStrzelania = LogikaStrzelania.Normalny;
@@ -177,5 +192,6 @@ namespace MKlimowski___gra_w_statki
         {
             Normalny, Trafiony, ZKierunkiem
         }
+
     }
 }

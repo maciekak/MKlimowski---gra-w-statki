@@ -11,11 +11,13 @@ namespace MKlimowski___gra_w_statki
         public int X { get; }
         public int Y { get; }
         public RodzajPola TypPola { get; set; }
+        public int Priorytet { get; set; }
         public Pole(int x, int y, RodzajPola typPola = RodzajPola.Puste)
         {
             X = x;
             Y = y;
             TypPola = typPola;
+            Priorytet = 0;
         }
 
         public bool PorownajPolozenie(int x, int y)
