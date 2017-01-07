@@ -53,9 +53,10 @@ namespace MKlimowski___gra_w_statki
         
         public static bool RemoveShipAndSurround(List<Field> fieldsOfBoards, Ship ship)
         {
-            //TODO: gownokod przerobic z wykorzystaniem powyzszej metody
             int lenghtOfOriginalBoard = fieldsOfBoards.Count;
             List<Field> fields;
+
+            //Znajdywanie pol statku i jego okolic
             switch (ship.Direction)
             {
                 case Direction.Down:
@@ -73,15 +74,16 @@ namespace MKlimowski___gra_w_statki
                     throw new ArgumentOutOfRangeException();
             }
 
-            fields.ForEach(p => fieldsOfBoards.Remove(p));
+            fieldsOfBoards.RemoveAll(fields.Contains);
 
             return fieldsOfBoards.Count + fields.Count == lenghtOfOriginalBoard;
         }
 
         public static bool SetShips(List<Field> baseFields, Ship ship)
         {
-            //TODO: no kurwa popraw, bo chujowo
             List<Field> fields;
+
+            //Zbieranie pol statka
             switch (ship.Direction)
             {
                 case Direction.Down:
@@ -93,7 +95,9 @@ namespace MKlimowski___gra_w_statki
                 default:
                     throw new ArgumentOutOfRangeException(nameof(ship.Direction), ship.Direction, null);
             }
-            if (fields.Count != ship.Length) return false;
+
+            if (fields.Count != ship.Length)
+                return false;
 
             fields.ForEach(p => p.TypeOfField = KindOfField.Ship);
             return true;
@@ -108,6 +112,7 @@ namespace MKlimowski___gra_w_statki
             }
 
             int quantityOfHorizontallyFields = 1;
+
             //Dodajemy kolejne pola w prawo
             for(int x = field.X + 1; x < field.X + length; x++)
             {
@@ -120,6 +125,7 @@ namespace MKlimowski___gra_w_statki
 
                 quantityOfHorizontallyFields++;
             }
+
             //Dodajemy kolejne pola w lewo
             for (int x = field.X - 1; x > field.X - length; x--)
             {
@@ -134,6 +140,7 @@ namespace MKlimowski___gra_w_statki
             }
 
             int quantityOfVerticallyFields = 1;
+
             //Dodajemy kolejne pola w dol
             for (int y = field.Y + 1; y < field.Y + length; y++)
             {
@@ -146,6 +153,7 @@ namespace MKlimowski___gra_w_statki
 
                 quantityOfVerticallyFields++;
             }
+
             //Dodajemy kolejne pola w gore
             for (int y = field.Y - 1; y > field.Y - length; y--)
             {
@@ -159,9 +167,11 @@ namespace MKlimowski___gra_w_statki
                 quantityOfVerticallyFields++;
             }
 
+            //Ilosci mozliwosci na ktore moze stac statek na wejsciowym polu
             int quantityOfPossibilitiesVertically = quantityOfVerticallyFields - length + 1;
             int quantityOfPossibilitiesHorizontally = quantityOfHorizontallyFields - length + 1;
 
+            //ustalanie priorytetu, ktory jest suma mozliwosci
             int priority = quantityOfPossibilitiesHorizontally > 0 ? quantityOfPossibilitiesHorizontally : 0;
             priority += quantityOfPossibilitiesVertically > 0 ? quantityOfPossibilitiesVertically : 0;
 
@@ -170,6 +180,7 @@ namespace MKlimowski___gra_w_statki
 
         public List<Field> FindPriorityListOfFieldsForLongestShip(List<Ship> ships)
         {
+            //Znajdywanie jakie najdluzsze statki jeszcze plywaja
             int length;
             for (length = 4; length > 0; length--)
             {
@@ -181,6 +192,7 @@ namespace MKlimowski___gra_w_statki
             if (length <= 0)
                 throw new ValueUnavailableException("Brak niezatopionych statkow");
 
+            //Ustawia sie priorytet 1 wszystkim polom jesli mamy doczynienia z jednomasztowcami
             if (length == 1)
             {
                 var fields = ListOfFields.Where(p => p.TypeOfField == KindOfField.Empty || p.TypeOfField == KindOfField.Ship).ToList();
@@ -188,6 +200,7 @@ namespace MKlimowski___gra_w_statki
                 return fields;
             }
 
+            //Ustawianie kazdemu polu priorytet
             var fieldsWithPriorities = new List<Field>();
             foreach (var pole in ListOfFields)
             {

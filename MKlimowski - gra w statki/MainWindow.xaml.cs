@@ -13,6 +13,20 @@ namespace MKlimowski___gra_w_statki
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
+    /*Przepraszam za lekki bajzel w kodzie, ale moze to glupie tak sie tlumaczyc
+     * ale nie zdazylem zrefactoryzowac kodu. Duzo jest powtarzajacego sie kodu,
+     * ktory mozna wydzielic do osobnych funkcji czy klas. Klasy tez sa za duze, 
+     * jak na przyklad ta.
+     * Ogolnie mozna bylo ta gre napisac znacznie krocej, ale staralem sie robic
+     * tak, zeby inne pliki nie zalezaly od "Widoku" czyli tego wlasnie pliku,
+     * a widok natomiast zalezal tylko od klasy Game, ale nie udalo mi sie tego
+     * ostatniego zrobic :)
+     * Caly kod jest rowniez na moim githubie: https://github.com/maciekak
+     * Chcialem jeszcze dodac, ze nie jestem mistrzem w grafice ani temu, zeby 
+     * to ladnie wygladalo.
+     *
+    */
     public partial class MainWindow : Window
     {
         public const int Measurement = 10;
@@ -22,9 +36,15 @@ namespace MKlimowski___gra_w_statki
         private State GameState { get; set; }
         private GrabbingShipsData LastGrap { get; }
 
+        private enum State
+        {
+            Start, Preordering, PlayerMove, ComputerMove, End
+        }
+        
         public MainWindow()
         {
             InitializeComponent();
+
             Instructions.Text = "Instrukcje:\nNaciśnij START.";
             
             double columnWidth = MainGrid.ColumnDefinitions[0].Width.Value / Measurement;
@@ -107,14 +127,14 @@ namespace MKlimowski___gra_w_statki
             //Rysuj plansze Gracza
             foreach (var field in Game.Player.UsersBoard.ListOfFields)
             {
-                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y);
                 element.Source = new BitmapImage(UrisImagesToGame[field.TypeOfField]);
             }
 
             //Rysuj plansze komputera
             foreach (var field in Game.Pc.UsersBoard.ListOfFields)
             {
-                var element = ComputerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                var element = ComputerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y);
                 //Jesli polem jest statek, to ustaw jako puste, zeby gracz nie widzial gdzie statki ma komputer
                 element.Source = field.TypeOfField == KindOfField.Ship ? new BitmapImage(UrisImagesToGame[KindOfField.Empty]) : new BitmapImage(UrisImagesToGame[field.TypeOfField]);
                 element.Cursor = field.TypeOfField == KindOfField.Miss || field.TypeOfField == KindOfField.Hit
@@ -126,15 +146,16 @@ namespace MKlimowski___gra_w_statki
         public static void AssignMouseButtonEventToBoard(Grid grid, MouseButtonEventHandler mouseButtonEventHandler, RoutedEvent routedEvent)
         {
             var listOfImages = grid.Children.OfType<Image>().ToList();
-            listOfImages.ForEach(i => i.AddHandler(routedEvent, mouseButtonEventHandler)); //TODO: Mouse down temporary
+            listOfImages.ForEach(i => i.AddHandler(routedEvent, mouseButtonEventHandler));
         }
 
         public static void AssignMouseEventToBoard(Grid grid, MouseEventHandler mouseEventHandler, RoutedEvent routedEvent)
         {
             var listOfImages = grid.Children.OfType<Image>().ToList();
-            listOfImages.ForEach(i => i.AddHandler(routedEvent, mouseEventHandler)); //TODO: Mouse down temporary
+            listOfImages.ForEach(i => i.AddHandler(routedEvent, mouseEventHandler));
         }
 
+        //Trzy ponizsze metody wygladaja strasznie :)
         public void ShowInfromationToSettingShips()
         {
             OneDecker.IsEnabled = true;
@@ -236,32 +257,38 @@ namespace MKlimowski___gra_w_statki
 
         public void Image_ShootingInComputerFields(object sender, RoutedEventArgs e)
         {
-            if (GameState != State.PlayerMove) return;
+            if (GameState != State.PlayerMove)
+                return;
+
             int y = Grid.GetColumn((Image) sender);
             int x = Grid.GetRow((Image) sender);
+
             var actionAfterShot = Game.Pc.Shot(x, y);
+
             switch(actionAfterShot)
             {
                 case ActionAfterShot.Hit:
                     Informations.Text = "Trafiony!";
                     GameState = State.PlayerMove;
                     break;
+
                 case ActionAfterShot.Miss:
                     ActionButton.Content = "Ruch Komputera";
                     Informations.Text = "Pudło!";
                     Show(false);
+
                     GameState = State.ComputerMove;
                     ComputerMove();
                     break;
+
                 case ActionAfterShot.Sinked:
                     Informations.Text = "Trafiony Zatopiony!";
                     UpdatePlayerStatistics();
                     GameState = State.PlayerMove;
+
                     //Jesli Gracz wygral
                     if (Game.Pc.CheckIsEnd())
-                    {
                         EndGame(Game.Player);
-                    }
                     break;
                 case ActionAfterShot.Error:
                     Informations.Text = "Tu już strzelałeś";
@@ -269,17 +296,20 @@ namespace MKlimowski___gra_w_statki
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             Show(GameState == State.PlayerMove);
         }
 
         public void Image_Grabbing(object sender, RoutedEventArgs e)
         {
             //Sprawdzic czy mozna chwycic
-            if (GameState != State.Preordering || LastGrap.IsGrabbed) return;
+            if (GameState != State.Preordering || LastGrap.IsGrabbed)
+                return;
 
             int length = FindShipLength(sender as Image);
             int quantity = Game.Player.Ships.Count(s => s.Length == length && s.IsSet == false);
-            if (quantity <= 0) return;
+            if (quantity <= 0)
+                return;
 
             LastGrap.Length = length;
             LastGrap.IsGrabbed = true;
@@ -292,7 +322,8 @@ namespace MKlimowski___gra_w_statki
         private static int FindShipLength(Image obrazek)
         {
             int row = Grid.GetRow(obrazek);
-            if(row > 4 || row < 1) throw new ArgumentException("Niepoprawny wiersz");
+            if(row > 4 || row < 1)
+                throw new ArgumentException("Niepoprawny wiersz");
 
             return 5 - row; //bo w pierwszym wierszu mamy czteromasztowca, w drugim troj itp itd
 
@@ -300,17 +331,18 @@ namespace MKlimowski___gra_w_statki
 
         public void Image_DroppingShips(object sender, RoutedEventArgs e)
         {
-            //Sprawdzic czy mozna
+            //Sprawdzic czy jestesmy w odpowiednim stanie
             if (GameState != State.Preordering || !LastGrap.IsGrabbed || !LastGrap.IsPossibleToPlace)
                 return;
 
             //Zmienic kolor statku
             foreach (var field in LastGrap.AvailableFields)
             {
-                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y);
                 element.Source = new BitmapImage(UrisImagesToGame[KindOfField.Ship]);
             }
 
+            //Ustawianie, ze statek zostal polozony
             var ship = Game.Player.Ships.First(s => s.Length == LastGrap.Length && !s.IsSet);
             ship.X = LastGrap.X;
             ship.Y = LastGrap.Y;
@@ -319,44 +351,51 @@ namespace MKlimowski___gra_w_statki
             LastGrap.AvailableFields.ForEach(p => p.TypeOfField = KindOfField.Ship);
             LastGrap.QuantityOfUnsituated--;
 
+            //Wypisanie powyzszego
             int row = 5 - LastGrap.Length;
             var label = InformationGrid.Children.OfType<Label>().First(l => Grid.GetRow(l) == row);
             label.Content = "x " + LastGrap.QuantityOfUnsituated;
 
+            //Resetowanie ostatniego chwytania(?) 
             LastGrap.IsGrabbed = false;
             LastGrap.Length = 0;
             LastGrap.AvailableFields = null;
-            LastGrap.FieldsToPaint = null;
+            LastGrap.FieldsOfPotentialShip = null;
 
+            //Jesli ustawiono wszystkie statki to mozna kontynuowac
             bool isSet = Game.Player.CheckIfSet();
-            ActionButton.IsEnabled = isSet; //Jesli ustawiono wszystkie statki to mozna kontynuowac
+            ActionButton.IsEnabled = isSet; 
 
             SetCursorOfBoard(PlayerBoard, Cursors.Arrow);
             SetCursorOfBoard(InformationGrid, isSet ? Cursors.Arrow : Cursors.Hand);
-
-            //Ustawic flage
+            
         }
 
         public void Image_EnteringCursorOnField(object sender, RoutedEventArgs e)
         {
             //Czy jest chwycony statek
-            if (GameState != State.Preordering || !LastGrap.IsGrabbed) return;
+            if (GameState != State.Preordering || !LastGrap.IsGrabbed)
+                return;
 
+            //Znalezienie odpowiedniego pola
             var image = (Image) sender;
             int y = Grid.GetColumn(image);
             int x = Grid.GetRow(image);
 
+            //Zapamietanie ostatniego miejsca kursora
             LastGrap.X = x;
             LastGrap.Y = y;
+
+            //Zbiera pola na ktorych bedzie zmieniany kolor
             switch (LastGrap.Direction)
             {
                 case Direction.Down:
-                    LastGrap.FieldsToPaint =
+                    LastGrap.FieldsOfPotentialShip =
                         Game.Player.UsersBoard.ListOfFields.Where(
                             p => p.X == x && p.Y >= y && p.Y <= y + LastGrap.Length - 1).ToList();
                     break;
                 case Direction.Right:
-                    LastGrap.FieldsToPaint =
+                    LastGrap.FieldsOfPotentialShip =
                         Game.Player.UsersBoard.ListOfFields.Where(
                             p => p.Y == y && p.X >= x && p.X <= x + LastGrap.Length - 1).ToList();
                     break;
@@ -364,19 +403,22 @@ namespace MKlimowski___gra_w_statki
                     throw new ArgumentOutOfRangeException();
             }
 
-            var surround = Game.Player.UsersBoard.FindSurround(LastGrap.FieldsToPaint);
-            LastGrap.AvailableFields =
-                LastGrap.FieldsToPaint.Where(p => p.TypeOfField == KindOfField.Empty).ToList();
+            //Znajduje okolice potencjalnego statku
+            var surround = Game.Player.UsersBoard.FindSurround(LastGrap.FieldsOfPotentialShip);
 
-            //Ustawia odpowiednio kolory w zaleznosci od tego czy mozna postawic statek
-            var possibleToPlace = LastGrap.AvailableFields.Count == LastGrap.Length && !surround.Exists(p => p.TypeOfField == KindOfField.Ship);
+            //Ze wszystkich potencjalnych pol wybieramy tylko te puste (tam gdzie nie ma statku)
+            LastGrap.AvailableFields =
+                LastGrap.FieldsOfPotentialShip.Where(p => p.TypeOfField == KindOfField.Empty).ToList();
+
+            //Sprawdza czy mozna postawic statek
+            bool possibleToPlace = LastGrap.AvailableFields.Count == LastGrap.Length && !surround.Exists(p => p.TypeOfField == KindOfField.Ship);
             LastGrap.IsPossibleToPlace = possibleToPlace;
 
+            //zmienia kursor i kolor pol w zaleznosci czy mozna postawic statek
             image.Cursor = possibleToPlace ? Cursors.Hand : Cursors.Arrow;
-
-            foreach (var field in LastGrap.FieldsToPaint)
+            foreach (var field in LastGrap.FieldsOfPotentialShip)
             {
-                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y);
                 element.Source = new BitmapImage(UriPossibilitiesToPlaceShip[possibleToPlace]);
             }
 
@@ -384,12 +426,14 @@ namespace MKlimowski___gra_w_statki
 
         public void Image_LeavingCursorFromField(object sender, RoutedEventArgs e)
         {
-            //Czy jest chwycony
-            if (GameState != State.Preordering || !LastGrap.IsGrabbed) return;
+            //Czy statek jest chwycony
+            if (GameState != State.Preordering || !LastGrap.IsGrabbed)
+                return;
             
-            foreach (var field in LastGrap.FieldsToPaint)
+            //Cofamy zmiany, tak ze opuszczane pola zostana takie jak przed wjechaniem myszy
+            foreach (var field in LastGrap.FieldsOfPotentialShip)
             {
-                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y);
                 element.Source = new BitmapImage(UrisImagesToGame[field.TypeOfField]);
             }
             var image = (Image) sender;
@@ -405,6 +449,8 @@ namespace MKlimowski___gra_w_statki
             ActionButton.IsEnabled = true;
             SetCursorOfBoard(ComputerBoard, Cursors.Arrow);
             SetCursorOfBoard(PlayerBoard, Cursors.Arrow);
+            
+            //Sprawdzanie ktory gracz wygral
             if (user is Player)
             {
                 Instructions.Text = "Brawo!\nRozwliłeś komputera.";
@@ -443,8 +489,13 @@ namespace MKlimowski___gra_w_statki
 
             while (true)
             {
-                if (GameState != State.ComputerMove) return;
-                await Task.Delay(100); //TODO: ustawić na normalna wartosc - 800
+                if (GameState != State.ComputerMove)
+                    return;
+
+                //Opoznienie ruchu komputera
+                await Task.Delay(800);
+
+                //Jesli komputer zatopil ostatni statek
                 if (Game.ComputerMove())
                 {
                     Informations.Text = "Trafiony Zatopiony!";
@@ -452,6 +503,8 @@ namespace MKlimowski___gra_w_statki
                     EndGame(Game.Pc);
                     return;
                 }
+
+                //Trafil to kontynuuje gre
                 if (Game.Pc.LastAction == ActionAfterShot.Hit ||
                          Game.Pc.LastAction == ActionAfterShot.Sinked)
                 {
@@ -473,6 +526,7 @@ namespace MKlimowski___gra_w_statki
             }
         }
 
+        //Event po klikniecu Wielkiego Zielonego klawisza
         private void Przebieg_Click(object sender, RoutedEventArgs e)
         {
             switch (GameState)
@@ -492,9 +546,11 @@ namespace MKlimowski___gra_w_statki
                     Instructions.Text = "Intrukcje:\nZaznacz pole na planszy komputera gdzie chcesz strzelić";
                     AssignMouseButtonEventToBoard(ComputerBoard, Image_ShootingInComputerFields, MouseLeftButtonDownEvent);
                     break;
+
                 case State.End:
                     Application.Current.Shutdown();
                     break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -502,12 +558,13 @@ namespace MKlimowski___gra_w_statki
 
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
-            if (GameState != State.Preordering) return;
+            if (GameState != State.Preordering)
+                return;
 
             Game.Player.Reset();
             SetCursorOfBoard(InformationGrid, Cursors.Hand);
-            var listOfLabelsWithQuantityOfShips = InformationGrid.Children.OfType<Label>().ToList();
 
+            var listOfLabelsWithQuantityOfShips = InformationGrid.Children.OfType<Label>().ToList();
             foreach(var label in listOfLabelsWithQuantityOfShips)
             {
                 label.Content = "x " + Grid.GetRow(label);
@@ -519,9 +576,11 @@ namespace MKlimowski___gra_w_statki
 
         private void Losuj_Click(object sender, RoutedEventArgs e)
         {
-            if (GameState != State.Preordering) return;
+            if (GameState != State.Preordering)
+                return;
 
             Game.Player.PickShips();
+
             SetCursorOfBoard(PlayerBoard, Cursors.Arrow);
             SetCursorOfBoard(InformationGrid, Cursors.Arrow);
             InformationGrid.Children.OfType<Label>().ToList().ForEach(l => l.Content = "x 0");
@@ -531,40 +590,11 @@ namespace MKlimowski___gra_w_statki
 
         private void Obroc_Click(object sender, RoutedEventArgs e)
         {
-            if (GameState != State.Preordering || !LastGrap.IsGrabbed) return;
+            if (GameState != State.Preordering || !LastGrap.IsGrabbed)
+                return;
 
             LastGrap.Direction = LastGrap.Direction == Direction.Down ? Direction.Right : Direction.Down;
         }
-    }
-
-    //TODO: nie wiem czy ten plik
-    public enum State
-    {
-        Start, Preordering, PlayerMove, ComputerMove, End
-    }
-
-    public class GrabbingShipsData : ILocation
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public bool IsGrabbed { get; set; }
-        public int Length { get; set; }
-        public Direction Direction { get; set; }
-        public List<Field> FieldsToPaint { get; set; }
-        public List<Field> AvailableFields { get; set; }
-        public int QuantityOfUnsituated { get; set; }
-        public bool IsPossibleToPlace { get; set; }
-
-        public GrabbingShipsData()
-        {
-            FieldsToPaint = null;
-            AvailableFields = null;
-            IsGrabbed = false;
-            IsPossibleToPlace = false;
-            Length = 0;
-            Direction = Direction.Down;
-        }
-
     }
     
 }

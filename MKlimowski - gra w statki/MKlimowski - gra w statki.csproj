@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GrabbingShipsData.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="ILocation.cs" />
     <Compile Include="Computer.cs" />

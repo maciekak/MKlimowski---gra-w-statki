@@ -12,6 +12,10 @@ namespace MKlimowski___gra_w_statki
         public ActionAfterShot LastAction { get; set; }
         public void PickShips()
         {
+            //Losowe wybieranie statkow
+            //Mamy liste mozliwych pol, na niej losujemy pole gdzie bedzie stal poczatek statku
+            //pozniej losujemy kierunek i sprawdzamy czy da sie tak statek ustawic,
+            //jesli sie da to ustawiamy statek i wywalamy z mozliwych pol ten statek i okolice
             var listOfPossibleFields = new List<Field>();
             Board.Copy(UsersBoard.ListOfFields, listOfPossibleFields);
 
@@ -66,9 +70,12 @@ namespace MKlimowski___gra_w_statki
                     UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(lastX, field.Y));
 
                 if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
-                    neighbouringField.TypeOfField == KindOfField.Empty) break;
+                    neighbouringField.TypeOfField == KindOfField.Empty)
+                    break;
+
                 //Jesli jest nietrafione pole ze statkiem to mamy pewnosc, ze statek nie jest zatopiony - analogicznie w kazdym
-                if (neighbouringField.TypeOfField == KindOfField.Ship) return false;
+                if (neighbouringField.TypeOfField == KindOfField.Ship)
+                    return false;
                 collectHitFields.Add(neighbouringField);
                 lastX--;
             }
@@ -79,9 +86,13 @@ namespace MKlimowski___gra_w_statki
             {
                 var neighbouringField =
                     UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(lastX, field.Y));
+
                 if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
-                    neighbouringField.TypeOfField == KindOfField.Empty) break;
-                if (neighbouringField.TypeOfField == KindOfField.Ship) return false;
+                    neighbouringField.TypeOfField == KindOfField.Empty)
+                    break;
+                if (neighbouringField.TypeOfField == KindOfField.Ship)
+                    return false;
+
                 collectHitFields.Add(neighbouringField);
                 lastX++;
             }
@@ -92,9 +103,12 @@ namespace MKlimowski___gra_w_statki
             {
                 var neighbouringField =
                     UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(field.X, lastY));
+
                 if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
-                    neighbouringField.TypeOfField == KindOfField.Empty) break;
-                if (neighbouringField.TypeOfField == KindOfField.Ship) return false;
+                    neighbouringField.TypeOfField == KindOfField.Empty)
+                    break;
+                if (neighbouringField.TypeOfField == KindOfField.Ship)
+                    return false;
                 collectHitFields.Add(neighbouringField);
                 lastY--;
             }
@@ -105,9 +119,12 @@ namespace MKlimowski___gra_w_statki
             {
                 var neighbouringField =
                     UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(field.X, lastY));
+
                 if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
-                    neighbouringField.TypeOfField == KindOfField.Empty) break;
-                if (neighbouringField.TypeOfField == KindOfField.Ship) return false;
+                    neighbouringField.TypeOfField == KindOfField.Empty)
+                    break;
+                if (neighbouringField.TypeOfField == KindOfField.Ship)
+                    return false;
                 collectHitFields.Add(neighbouringField);
                 lastY++;
             }
