@@ -29,7 +29,7 @@ namespace MKlimowski___gra_w_statki
         private Dictionary<RodzajPola, Uri> UriObrazkowDoGry { get; set; }
         private Dictionary<bool, Uri> UriCzyMoznaPolozycStatek { get; set; }
         private Stan StanGry { get; set; }
-        private DaneChwytaniaStatkow OstatniChwytany { get; set; }
+        private DaneChwytaniaStatkow OstatniChwytany { get; }
 
         public MainWindow()
         {
@@ -44,10 +44,10 @@ namespace MKlimowski___gra_w_statki
             this.StworzPlansze(PlanszaKomputera, szerokoscKolumny, wysokoscWiersza);
             this.StworzPlansze(PlanszaGracza, szerokoscKolumny, wysokoscWiersza);
             
-            Jednomasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Statek.png"));
-            Dwumasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\2xStatek.png"));
-            Trojmasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\3xStatek.png"));
-            Czteromasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\4xStatek.png"));
+            JednomasztG.Source = Jednomaszt.Source = Jednomasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Statek.png"));
+            DwumasztG.Source = Dwumaszt.Source = Dwumasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\2xStatek.png"));
+            TrojmasztG.Source = Trojmaszt.Source = Trojmasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\3xStatek.png"));
+            CzteromasztG.Source = Czteromaszt.Source = Czteromasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\4xStatek.png"));
 
             OstatniChwytany = new DaneChwytaniaStatkow();
             Gra = new Rozgrywka();
@@ -172,6 +172,7 @@ namespace MKlimowski___gra_w_statki
 
             Przebieg.Content = "Rozstawione";
             Przebieg.IsEnabled = false;
+            Informacje.Text = "Statki:";
 
             UstawKursorPlanszy(InformacyjnyGrid, Cursors.Hand);
 
@@ -210,7 +211,35 @@ namespace MKlimowski___gra_w_statki
 
             UstawKursorPlanszy(InformacyjnyGrid, Cursors.Arrow);
             UstawKursorPlanszy(PlanszaGracza, Cursors.Arrow);
+            Informacje.Text = "";
+            
+            PokazStatystyki();
+        }
 
+        public void PokazStatystyki()
+        {
+            JednomasztG.Visibility = Visibility.Visible;
+            DwumasztG.Visibility = Visibility.Visible;
+            TrojmasztG.Visibility = Visibility.Visible;
+            CzteromasztG.Visibility = Visibility.Visible;
+
+            Jednomaszt.Visibility = Visibility.Visible;
+            Dwumaszt.Visibility = Visibility.Visible;
+            Trojmaszt.Visibility = Visibility.Visible;
+            Czteromaszt.Visibility = Visibility.Visible;
+
+            IleJednomasztG.Visibility = Visibility.Visible;
+            IleDwumasztG.Visibility = Visibility.Visible;
+            IleTrojmasztG.Visibility = Visibility.Visible;
+            IleCzteromasztG.Visibility = Visibility.Visible;
+
+            IleJednomaszt.Visibility = Visibility.Visible;
+            IleDwumaszt.Visibility = Visibility.Visible;
+            IleTrojmaszt.Visibility = Visibility.Visible;
+            IleCzteromaszt.Visibility = Visibility.Visible;
+
+            StatystkiGracz.Visibility = Visibility.Visible;
+            StatystkiKomputer.Visibility = Visibility.Visible;
         }
 
         public void Image_StrzelanieWPolaKomputera(object sender, RoutedEventArgs e)
@@ -223,17 +252,18 @@ namespace MKlimowski___gra_w_statki
             {
                 case AkcjaPoStrzale.Trafiony:
                     Informacje.Text = "Trafiony!";
-                    Przebieg.IsEnabled = false;
                     StanGry = Stan.RuchGracza;
                     break;
                 case AkcjaPoStrzale.Pudlo:
-                    Przebieg.IsEnabled = true;
+                    Przebieg.Content = "Ruch Komputera";
                     Informacje.Text = "Pudło!";
+                    Rysuj(false);
                     StanGry = Stan.RuchKomputera;
+                    RuchKomputera();
                     break;
                 case AkcjaPoStrzale.Zatopiony:
                     Informacje.Text = "Trafiony Zatopiony!";
-                    Przebieg.IsEnabled = false;
+                    AkutalizujStatystykiGracza();
                     StanGry = Stan.RuchGracza;
                     //Jesli Gracz wygral
                     if (Gra.PrzeciwnikKomputerowy.CzyKoniec())
@@ -397,14 +427,66 @@ namespace MKlimowski___gra_w_statki
                 throw new Exception("Niemozliwy typ uzytkownika");
             }
         }
+
+        public void AkutalizujStatystykiKomputera()
+        {
+            var statki = Gra.Player.Statki;
+            IleJednomasztG.Content = "x " + statki.Count(s => s.Dlugosc == 1 && s.CzyZatopiony == false);
+            IleDwumasztG.Content = "x " + statki.Count(s => s.Dlugosc == 2 && s.CzyZatopiony == false);
+            IleTrojmasztG.Content = "x " + statki.Count(s => s.Dlugosc == 3 && s.CzyZatopiony == false);
+            IleCzteromasztG.Content = "x " + statki.Count(s => s.Dlugosc == 4 && s.CzyZatopiony == false);
+        }
+
+        public void AkutalizujStatystykiGracza()
+        {
+            var statki = Gra.PrzeciwnikKomputerowy.Statki;
+            IleJednomaszt.Content = "x " + statki.Count(s => s.Dlugosc == 1 && s.CzyZatopiony == false);
+            IleDwumaszt.Content = "x " + statki.Count(s => s.Dlugosc == 2 && s.CzyZatopiony == false);
+            IleTrojmaszt.Content = "x " + statki.Count(s => s.Dlugosc == 3 && s.CzyZatopiony == false);
+            IleCzteromaszt.Content = "x " + statki.Count(s => s.Dlugosc == 4 && s.CzyZatopiony == false);
+        }
+
+        private async void RuchKomputera()
+        {
+
+            while (true)
+            {
+                if (StanGry != Stan.RuchKomputera) return;
+                await Task.Delay(100); //TODO: ustawić na normalna wartosc - 800
+                if (Gra.RuchKomputera())
+                {
+                    Informacje.Text = "Trafiony Zatopiony!";
+                    AkutalizujStatystykiKomputera();
+                    ZakonczGre(Gra.PrzeciwnikKomputerowy);
+                    return;
+                }
+                if (Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Trafiony ||
+                         Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Zatopiony)
+                {
+                    AkutalizujStatystykiKomputera();
+                    Informacje.Text = Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Trafiony ?
+                                        "Trafiony!" : "Trafiony Zatopiony!";
+                    StanGry = Stan.RuchKomputera;
+                    Przebieg.Content = "Ruch Komputera";
+                    Rysuj(false);
+                }
+                else
+                {
+                    StanGry = Stan.RuchGracza;
+                    Informacje.Text = "Pudło!";
+                    Przebieg.Content = "Twój Ruch";
+                    Rysuj();
+                    break;
+                }
+            }
+        }
+
         private void Przebieg_Click(object sender, RoutedEventArgs e)
         {
             switch (StanGry)
             {
                 case Stan.Start:
                     StanGry = Stan.Rozstawianie;
-                    //TODO: zakomentowane bo fejkowe dane
-                    //Przebieg.IsEnabled = false;
                     PokazInformacjeDoUstawianiaStatkow();
                     break;
 
@@ -414,50 +496,12 @@ namespace MKlimowski___gra_w_statki
                     Gra.PrzeciwnikKomputerowy.LosujStatki();
                     Rysuj();
                     Przebieg.IsEnabled = false;
-                    Przebieg.Content = "Zakończ swój ruch";
+                    Przebieg.Content = "Twój Ruch";
                     Instukcje.Text = "Intrukcje:\nZaznacz pole na planszy komputera gdzie chcesz strzelić";
                     PrzypiszEventPrzyciskuPlanszy(PlanszaKomputera, Image_StrzelanieWPolaKomputera, MouseLeftButtonDownEvent);
                     break;
-
-                case Stan.RuchGracza:
-
-                    Przebieg.IsEnabled = true;
-                    Przebieg.Content = "Zakończ ruch komputera";
-                    StanGry = Stan.RuchKomputera;
-                    break;
-
-                case Stan.RuchKomputera:
-                    //TODO: ustawic to na koniec rozgrywki
-                    //                    Przebieg.IsEnabled = true;
-                    //                    Przebieg.Content = "KONIEC";
-
-                    if (Gra.RuchKomputera())
-                        ZakonczGre(Gra.PrzeciwnikKomputerowy);
-                    else if (Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Trafiony ||
-                             Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Zatopiony)
-                    {
-                        StanGry = Stan.RuchKomputera;
-                        Przebieg.Content = "Zakończ ruch komputera";
-                        Przebieg.IsEnabled = true;
-                        Rysuj(false);
-                    }
-                    else
-                    {
-                        StanGry = Stan.WciazRuchKomputera;
-                        Przebieg.Content = "Zakończ ruch komputera";
-                        Przebieg.IsEnabled = true;
-                        Rysuj(false);
-                    }
-                    break;
-
-                case Stan.WciazRuchKomputera:
-                    StanGry = Stan.RuchGracza;
-                    Przebieg.Content = "Zakończ swój ruch";
-                    Przebieg.IsEnabled = false;
-                    Rysuj();
-                    break;
-
                 case Stan.Koniec:
+                    Application.Current.Shutdown();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -504,7 +548,7 @@ namespace MKlimowski___gra_w_statki
     //TODO: nie wiem czy ten plik
     public enum Stan
     {
-        Start, Rozstawianie, RuchGracza, RuchKomputera, WciazRuchKomputera, Koniec
+        Start, Rozstawianie, RuchGracza, RuchKomputera, Koniec
     }
 
     public class DaneChwytaniaStatkow : IPolozenie

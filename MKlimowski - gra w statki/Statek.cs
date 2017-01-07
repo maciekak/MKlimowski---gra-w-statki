@@ -13,11 +13,13 @@ namespace MKlimowski___gra_w_statki
         public int Y { get; set; }
         public Kierunek Kierunek { get; set; }
         public bool CzyUstawiony { get; set; }
+        public bool CzyZatopiony { get; set; }
 
         public Statek(int dlugosc)
         {
             Dlugosc = dlugosc;
             CzyUstawiony = false;
+            CzyZatopiony = false;
         }
     }
 }

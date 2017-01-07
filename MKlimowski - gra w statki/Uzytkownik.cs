@@ -59,8 +59,7 @@ namespace MKlimowski___gra_w_statki
         private bool Zatop(Pole pole)
         {
             var zbierzTrafionePola = new List<Pole> {pole};
-
-
+            
             // Sprawdzanie czy na lewo jest statek
             var ostatniX = pole.X - 1;
             while (true)
@@ -114,6 +113,9 @@ namespace MKlimowski___gra_w_statki
                 zbierzTrafionePola.Add(sasiedniePole);
                 ostatniY++;
             }
+
+            var statek = Statki.First(s => zbierzTrafionePola.Exists(p => s.X == p.X && s.Y == p.Y));
+            statek.CzyZatopiony = true;
 
             var okolica = PlanszaUzytkownika.ZnajdzOkolice(zbierzTrafionePola);
 

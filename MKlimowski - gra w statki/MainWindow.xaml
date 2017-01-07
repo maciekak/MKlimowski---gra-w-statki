@@ -24,10 +24,52 @@
             <TextBlock x:Name="NaglowekKomputera" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Plansza Komputera" VerticalAlignment="Center" FontWeight="Bold" FontSize="42"/>
         </Border>
         <Border Grid.Column="0" Grid.Row="2" Background="#FF7E7E7E">
-            <TextBlock x:Name="StatystkiGracz" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Statystyki Gracza:" VerticalAlignment="Top"/>
+            <Grid x:Name="StatystykiGraczGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="40"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="StatystkiGracz" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Twoje niezatopione statki:" VerticalAlignment="Center" Visibility="Hidden"/>
+                <Image x:Name="CzteromasztG" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
+                <Image x:Name="TrojmasztG" HorizontalAlignment="Center" Height="40" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
+                <Image x:Name="DwumasztG" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
+                <Image x:Name="JednomasztG" HorizontalAlignment="Center" Height="40" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
+                <Label x:Name="IleCzteromasztG" Content="x 1" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="IleTrojmasztG" Content="x 2" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="IleDwumasztG" Content="x 3" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="IleJednomasztG" Content="x 4" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+            </Grid>
         </Border>
         <Border Grid.Column="2" Grid.Row="2" Background="#FF7E7E7E">
-            <TextBlock x:Name="StatystkiKomputer" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Statystyki Komputera:" VerticalAlignment="Top"/>
+            <Grid x:Name="StatystykiKomputerGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="40"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="StatystkiKomputer" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Do trafienia jeszcze:" VerticalAlignment="Center" Visibility="Hidden"/>
+                <Image x:Name="Czteromaszt" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
+                <Image x:Name="Trojmaszt" HorizontalAlignment="Center" Height="40" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
+                <Image x:Name="Dwumaszt" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
+                <Image x:Name="Jednomaszt" HorizontalAlignment="Center" Height="40" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
+                <Label x:Name="IleCzteromaszt" Content="x 1" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="IleTrojmaszt" Content="x 2" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="IleDwumaszt" Content="x 3" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="IleJednomaszt" Content="x 4" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+            </Grid>
         </Border>
         <TextBlock x:Name="Instukcje" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Instrukcja" VerticalAlignment="Stretch" FontSize="16" TextAlignment="Justify"/>
         <Grid x:Name ="PlanszaGracza" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column ="0" VerticalAlignment="Stretch"/>
@@ -53,7 +95,7 @@
                 <Border x:Name="RamkaDwumasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Background="#FFDDE445" Visibility="Hidden"/>
                 <Border x:Name="RamkaTrojmasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Background="#FFDADCAF" Visibility="Hidden"/>
                 <Border x:Name="RamkaCzteromasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Background="#FFDDE445" Visibility="Hidden"/>
-                <TextBlock x:Name="Informacje" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Informacje" VerticalAlignment="Stretch" TextAlignment="Justify"/>
+                <TextBlock x:Name="Informacje" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" TextAlignment="Justify"/>
                 <Button x:Name="Reset" Grid.Column="1" HorizontalAlignment="Stretch" Grid.Row="6" VerticalAlignment="Stretch" Content="Reset" Click="Reset_Click" Background="#FF93FFFF" Visibility="Hidden"/>
                 <Button x:Name="Losuj" Content="Losuj" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="0" VerticalAlignment="Stretch" Click="Losuj_Click" Background="#FF93FFFF" Visibility="Hidden"/>
                 <Button x:Name="Obroc" Content="Obróć" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FF2B4DC1" Visibility="Hidden" Click="Obroc_Click"/>
