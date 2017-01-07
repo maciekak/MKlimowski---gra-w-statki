@@ -55,12 +55,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Gracz.cs" />
-    <Compile Include="IPolozenie.cs" />
-    <Compile Include="Komputer.cs" />
-    <Compile Include="Statek.cs" />
-    <Compile Include="Uzytkownik.cs" />
-    <Compile Include="Rozgrywka.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="ILocation.cs" />
+    <Compile Include="Computer.cs" />
+    <Compile Include="Ship.cs" />
+    <Compile Include="User.cs" />
+    <Compile Include="Game.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -75,8 +75,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Plansza.cs" />
-    <Compile Include="Pole.cs" />
+    <Compile Include="Board.cs" />
+    <Compile Include="Field.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

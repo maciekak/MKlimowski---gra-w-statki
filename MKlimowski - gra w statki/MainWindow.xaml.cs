@@ -1,426 +1,417 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace MKlimowski___gra_w_statki
 {
-    //TODO: zmienic nazwy na angielskie
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        public const int Wymiar = 10; //TODO: nie ten plik
-        private Rozgrywka Gra { get; }
-        private Dictionary<RodzajPola, Uri> UriObrazkowDoGry { get; set; }
-        private Dictionary<bool, Uri> UriCzyMoznaPolozycStatek { get; set; }
-        private Stan StanGry { get; set; }
-        private DaneChwytaniaStatkow OstatniChwytany { get; }
+        public const int Measurement = 10;
+        private Game Game { get; }
+        private Dictionary<KindOfField, Uri> UrisImagesToGame { get; set; }
+        private Dictionary<bool, Uri> UriPossibilitiesToPlaceShip { get; set; }
+        private State GameState { get; set; }
+        private GrabbingShipsData LastGrap { get; }
 
         public MainWindow()
         {
             InitializeComponent();
-            Instrukcje.Text = "Instrukcje:\nNaciśnij START.";
+            Instructions.Text = "Instrukcje:\nNaciśnij START.";
             
-            double szerokoscKolumny = MainGrid.ColumnDefinitions[0].Width.Value / Wymiar;
-            double wysokoscWiersza = (MainGrid.RowDefinitions[1].Height.Value) / Wymiar;
+            double columnWidth = MainGrid.ColumnDefinitions[0].Width.Value / Measurement;
+            double rowHeight = (MainGrid.RowDefinitions[1].Height.Value) / Measurement;
 
-            UstawObrazkiPol();
+            SetImagesOfFields();
 
-            this.StworzPlansze(PlanszaKomputera, szerokoscKolumny, wysokoscWiersza);
-            this.StworzPlansze(PlanszaGracza, szerokoscKolumny, wysokoscWiersza);
+            CreateBoard(ComputerBoard, columnWidth, rowHeight);
+            CreateBoard(PlayerBoard, columnWidth, rowHeight);
             
-            JednomasztG.Source = Jednomaszt.Source = Jednomasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Statek.png"));
-            DwumasztG.Source = Dwumaszt.Source = Dwumasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\2xStatek.png"));
-            TrojmasztG.Source = Trojmaszt.Source = Trojmasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\3xStatek.png"));
-            CzteromasztG.Source = Czteromaszt.Source = Czteromasztowiec.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\4xStatek.png"));
+            PlayerOneDecker.Source = ComputerOneDecker.Source = OneDecker.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Statek.png"));
+            PlayerTwoDecker.Source = ComputerTwoDecker.Source = TwoDecker.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\2xStatek.png"));
+            PlayerThreeDecker.Source = ComputerThreeDecker.Source = ThreeDecker.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\3xStatek.png"));
+            PlayerFourDecker.Source = ComputerFourDecker.Source = FourDecker.Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\4xStatek.png"));
 
-            OstatniChwytany = new DaneChwytaniaStatkow();
-            Gra = new Rozgrywka();
-            StanGry = Stan.Start;
+            LastGrap = new GrabbingShipsData();
+            Game = new Game();
+            GameState = State.Start;
         }
 
-        private void UstawObrazkiPol()
+        private void SetImagesOfFields()
         {
-            UriObrazkowDoGry = new Dictionary<RodzajPola, Uri>()
+            UrisImagesToGame = new Dictionary<KindOfField, Uri>()
             {
-                {RodzajPola.Puste, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Nieodkryte-pole.png")},
-                {RodzajPola.Pudlo, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Pudlo.png")},
-                {RodzajPola.Trafiony, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Trafiony.png")},
-                {RodzajPola.Statek, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Statek.png")}
+                {KindOfField.Empty, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Nieodkryte-pole.png")},
+                {KindOfField.Miss, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Pudlo.png")},
+                {KindOfField.Hit, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Trafiony.png")},
+                {KindOfField.Ship, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Statek.png")}
             };
 
-            UriCzyMoznaPolozycStatek = new Dictionary<bool, Uri>()
+            UriPossibilitiesToPlaceShip = new Dictionary<bool, Uri>()
             {
                 {true, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\PropozycjaStatek.png")},
                 {false, new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\NiedozwolonyStatek.png")}
             };
         }
 
-        public static void UstawKursorPlanszy(Grid grid, Cursor kursor)
+        public static void SetCursorOfBoard(Grid grid, Cursor cursor)
         {
-            var obrazki = grid.Children.OfType<Image>().ToList();
-            obrazki.ForEach(o => o.Cursor = kursor);
+            var images = grid.Children.OfType<Image>().ToList();
+            images.ForEach(o => o.Cursor = cursor);
         }
 
-        private void StworzPlansze(Grid plansza, double szerokosc, double wysokosc)
+        private void CreateBoard(Grid board, double width, double height)
         {
             //Tworzenie siatki pol
-            for (int i = 0; i < Wymiar; i++)
+            for (int i = 0; i < Measurement; i++)
             {
-                plansza.ColumnDefinitions.Add(new ColumnDefinition()
+                board.ColumnDefinitions.Add(new ColumnDefinition()
                 {
-                    Width = new GridLength(szerokosc)
+                    Width = new GridLength(width)
                 });
-                plansza.RowDefinitions.Add(new RowDefinition()
+                board.RowDefinitions.Add(new RowDefinition()
                 {
-                    Height = new GridLength(wysokosc)
+                    Height = new GridLength(height)
                 });
             }
 
             //Wypelnianie nietrafionymi polami
-            for (int x = 0; x < Wymiar; x++)
+            for (int x = 0; x < Measurement; x++)
             {
-                for (int y = 0; y < Wymiar; y++)
+                for (int y = 0; y < Measurement; y++)
                 {
-                    var pole = new Image
+                    var field = new Image
                     {
                         Source = new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), @"\Images\Nieodkryte-pole.png"))
                     };
-                    pole.SetValue(Grid.RowProperty, x);
-                    pole.SetValue(Grid.ColumnProperty, y);
-                    plansza.Children.Add(pole);
+                    field.SetValue(Grid.RowProperty, x);
+                    field.SetValue(Grid.ColumnProperty, y);
+                    board.Children.Add(field);
                 }
             }
             
         }
 
-        public void Rysuj(bool czyUstawiacKursorLapki = true)
+        public void Show(bool isSetHandCursor = true)
         {
-            var kursor = czyUstawiacKursorLapki ? Cursors.Hand : Cursors.Arrow;
+            var cursor = isSetHandCursor ? Cursors.Hand : Cursors.Arrow;
 
             //Rysuj plansze Gracza
-            foreach (var pole in Gra.Player.PlanszaUzytkownika.ListaPol)
+            foreach (var field in Game.Player.UsersBoard.ListOfFields)
             {
-                var element = PlanszaGracza.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
-                element.Source = new BitmapImage(UriObrazkowDoGry[pole.TypPola]);
+                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                element.Source = new BitmapImage(UrisImagesToGame[field.TypeOfField]);
             }
 
             //Rysuj plansze komputera
-            foreach (var pole in Gra.PrzeciwnikKomputerowy.PlanszaUzytkownika.ListaPol)
+            foreach (var field in Game.Pc.UsersBoard.ListOfFields)
             {
-                var element = PlanszaKomputera.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
+                var element = ComputerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
                 //Jesli polem jest statek, to ustaw jako puste, zeby gracz nie widzial gdzie statki ma komputer
-                element.Source = pole.TypPola == RodzajPola.Statek ? new BitmapImage(UriObrazkowDoGry[RodzajPola.Puste]) : new BitmapImage(UriObrazkowDoGry[pole.TypPola]);
-                element.Cursor = pole.TypPola == RodzajPola.Pudlo || pole.TypPola == RodzajPola.Trafiony
+                element.Source = field.TypeOfField == KindOfField.Ship ? new BitmapImage(UrisImagesToGame[KindOfField.Empty]) : new BitmapImage(UrisImagesToGame[field.TypeOfField]);
+                element.Cursor = field.TypeOfField == KindOfField.Miss || field.TypeOfField == KindOfField.Hit
                     ? Cursors.Arrow
-                    : kursor;
+                    : cursor;
             }
         }
 
-        public static void PrzypiszEventPrzyciskuPlanszy(Grid grid, MouseButtonEventHandler mouseButtonEventHandler, RoutedEvent routedEvent)
+        public static void AssignMouseButtonEventToBoard(Grid grid, MouseButtonEventHandler mouseButtonEventHandler, RoutedEvent routedEvent)
         {
-            var listaObrazkow = grid.Children.OfType<Image>().ToList();
-            listaObrazkow.ForEach(i => i.AddHandler(routedEvent, mouseButtonEventHandler)); //TODO: Mouse down temporary
+            var listOfImages = grid.Children.OfType<Image>().ToList();
+            listOfImages.ForEach(i => i.AddHandler(routedEvent, mouseButtonEventHandler)); //TODO: Mouse down temporary
         }
 
-        public static void PrzypiszEventMyszyPlanszy(Grid grid, MouseEventHandler mouseEventHandler, RoutedEvent routedEvent)
+        public static void AssignMouseEventToBoard(Grid grid, MouseEventHandler mouseEventHandler, RoutedEvent routedEvent)
         {
-            var listaObrazkow = grid.Children.OfType<Image>().ToList();
-            listaObrazkow.ForEach(i => i.AddHandler(routedEvent, mouseEventHandler)); //TODO: Mouse down temporary
+            var listOfImages = grid.Children.OfType<Image>().ToList();
+            listOfImages.ForEach(i => i.AddHandler(routedEvent, mouseEventHandler)); //TODO: Mouse down temporary
         }
 
-        public void PokazInformacjeDoUstawianiaStatkow()
+        public void ShowInfromationToSettingShips()
         {
-            Jednomasztowiec.IsEnabled = true;
-            Jednomasztowiec.Visibility = Visibility.Visible;
-            OpisJednomasztowca.Visibility = Visibility.Visible;
-            RamkaJednomasztowca.Visibility = Visibility.Visible;
+            OneDecker.IsEnabled = true;
+            OneDecker.Visibility = Visibility.Visible;
+            QuantityOfOneDecker.Visibility = Visibility.Visible;
+            BorderOfOneDecker.Visibility = Visibility.Visible;
 
-            Dwumasztowiec.IsEnabled = true;
-            Dwumasztowiec.Visibility = Visibility.Visible;
-            OpisDwumasztowca.Visibility = Visibility.Visible;
-            RamkaDwumasztowca.Visibility = Visibility.Visible;
+            TwoDecker.IsEnabled = true;
+            TwoDecker.Visibility = Visibility.Visible;
+            QuantityOfTwoDecker.Visibility = Visibility.Visible;
+            BorderOfTwoDecker.Visibility = Visibility.Visible;
 
-            Trojmasztowiec.IsEnabled = true;
-            Trojmasztowiec.Visibility = Visibility.Visible;
-            OpisTrojmasztowca.Visibility = Visibility.Visible;
-            RamkaTrojmasztowca.Visibility = Visibility.Visible;
+            ThreeDecker.IsEnabled = true;
+            ThreeDecker.Visibility = Visibility.Visible;
+            QuantityOfThreeDecker.Visibility = Visibility.Visible;
+            BorderOfThreeDecker.Visibility = Visibility.Visible;
 
-            Czteromasztowiec.IsEnabled = true;
-            Czteromasztowiec.Visibility = Visibility.Visible;
-            OpisCzteromasztowca.Visibility = Visibility.Visible;
-            RamkaCzteromasztowca.Visibility = Visibility.Visible;
+            FourDecker.IsEnabled = true;
+            FourDecker.Visibility = Visibility.Visible;
+            QuantityOfFourDecker.Visibility = Visibility.Visible;
+            BorderOfFourDecker.Visibility = Visibility.Visible;
 
-            Losuj.Visibility = Visibility.Visible;
+            Pick.Visibility = Visibility.Visible;
             Reset.Visibility = Visibility.Visible;
-            Obroc.Visibility = Visibility.Visible;
+            Turn.Visibility = Visibility.Visible;
 
-            Przebieg.Content = "Rozstawione";
-            Przebieg.IsEnabled = false;
-            Informacje.Text = "Statki:";
-            Instrukcje.Text = "Intrukcje:\nWybierz statek, a następnie wybierz mu miejsce na planszy.";
+            ActionButton.Content = "Rozstawione";
+            ActionButton.IsEnabled = false;
+            Informations.Text = "Statki:";
+            Instructions.Text = "Intrukcje:\nWybierz statek, a następnie wybierz mu miejsce na planszy.";
 
-            UstawKursorPlanszy(InformacyjnyGrid, Cursors.Hand);
+            SetCursorOfBoard(InformationGrid, Cursors.Hand);
 
-            PrzypiszEventPrzyciskuPlanszy(InformacyjnyGrid, Image_Chwytanie, MouseDownEvent);
-            PrzypiszEventPrzyciskuPlanszy(PlanszaGracza, Image_UpuszczanieStatku, MouseDownEvent);
+            AssignMouseButtonEventToBoard(InformationGrid, Image_Grabbing, MouseDownEvent);
+            AssignMouseButtonEventToBoard(PlayerBoard, Image_DroppingShips, MouseDownEvent);
 
-            PrzypiszEventMyszyPlanszy(PlanszaGracza, Image_WjezdzanieKursoraNaPole, MouseEnterEvent);
-            PrzypiszEventMyszyPlanszy(PlanszaGracza, Image_WyjezdzanieKursoraZPola, MouseLeaveEvent);
+            AssignMouseEventToBoard(PlayerBoard, Image_EnteringCursorOnField, MouseEnterEvent);
+            AssignMouseEventToBoard(PlayerBoard, Image_LeavingCursorFromField, MouseLeaveEvent);
         }
 
-        public void SchowajInformacjeDoUstawiania()
+        public void HideInformationToSettingsShips()
         {
-            Jednomasztowiec.IsEnabled = false;
-            Jednomasztowiec.Visibility = Visibility.Hidden;
-            OpisJednomasztowca.Visibility = Visibility.Hidden;
-            RamkaJednomasztowca.Visibility = Visibility.Hidden;
+            OneDecker.IsEnabled = false;
+            OneDecker.Visibility = Visibility.Hidden;
+            QuantityOfOneDecker.Visibility = Visibility.Hidden;
+            BorderOfOneDecker.Visibility = Visibility.Hidden;
 
-            Dwumasztowiec.IsEnabled = false;
-            Dwumasztowiec.Visibility = Visibility.Hidden;
-            OpisDwumasztowca.Visibility = Visibility.Hidden;
-            RamkaDwumasztowca.Visibility = Visibility.Hidden;
+            TwoDecker.IsEnabled = false;
+            TwoDecker.Visibility = Visibility.Hidden;
+            QuantityOfTwoDecker.Visibility = Visibility.Hidden;
+            BorderOfTwoDecker.Visibility = Visibility.Hidden;
 
-            Trojmasztowiec.IsEnabled = false;
-            Trojmasztowiec.Visibility = Visibility.Hidden;
-            OpisTrojmasztowca.Visibility = Visibility.Hidden;
-            RamkaTrojmasztowca.Visibility = Visibility.Hidden;
+            ThreeDecker.IsEnabled = false;
+            ThreeDecker.Visibility = Visibility.Hidden;
+            QuantityOfThreeDecker.Visibility = Visibility.Hidden;
+            BorderOfThreeDecker.Visibility = Visibility.Hidden;
 
-            Czteromasztowiec.IsEnabled = false;
-            Czteromasztowiec.Visibility = Visibility.Hidden;
-            OpisCzteromasztowca.Visibility = Visibility.Hidden;
-            RamkaCzteromasztowca.Visibility = Visibility.Hidden;
+            FourDecker.IsEnabled = false;
+            FourDecker.Visibility = Visibility.Hidden;
+            QuantityOfFourDecker.Visibility = Visibility.Hidden;
+            BorderOfFourDecker.Visibility = Visibility.Hidden;
 
-            Losuj.Visibility = Visibility.Hidden;
+            Pick.Visibility = Visibility.Hidden;
             Reset.Visibility = Visibility.Hidden;
-            Obroc.Visibility = Visibility.Hidden;
+            Turn.Visibility = Visibility.Hidden;
 
-            UstawKursorPlanszy(InformacyjnyGrid, Cursors.Arrow);
-            UstawKursorPlanszy(PlanszaGracza, Cursors.Arrow);
-            Informacje.Text = "";
+            SetCursorOfBoard(InformationGrid, Cursors.Arrow);
+            SetCursorOfBoard(PlayerBoard, Cursors.Arrow);
+            Informations.Text = "";
             
-            PokazStatystyki();
+            ShowStatistics();
         }
 
-        public void PokazStatystyki()
+        public void ShowStatistics()
         {
-            JednomasztG.Visibility = Visibility.Visible;
-            DwumasztG.Visibility = Visibility.Visible;
-            TrojmasztG.Visibility = Visibility.Visible;
-            CzteromasztG.Visibility = Visibility.Visible;
+            PlayerOneDecker.Visibility = Visibility.Visible;
+            PlayerTwoDecker.Visibility = Visibility.Visible;
+            PlayerThreeDecker.Visibility = Visibility.Visible;
+            PlayerFourDecker.Visibility = Visibility.Visible;
 
-            Jednomaszt.Visibility = Visibility.Visible;
-            Dwumaszt.Visibility = Visibility.Visible;
-            Trojmaszt.Visibility = Visibility.Visible;
-            Czteromaszt.Visibility = Visibility.Visible;
+            ComputerOneDecker.Visibility = Visibility.Visible;
+            ComputerTwoDecker.Visibility = Visibility.Visible;
+            ComputerThreeDecker.Visibility = Visibility.Visible;
+            ComputerFourDecker.Visibility = Visibility.Visible;
 
-            IleJednomasztG.Visibility = Visibility.Visible;
-            IleDwumasztG.Visibility = Visibility.Visible;
-            IleTrojmasztG.Visibility = Visibility.Visible;
-            IleCzteromasztG.Visibility = Visibility.Visible;
+            PlayerQuantityOfOneDecker.Visibility = Visibility.Visible;
+            PlayerQuantityOfTwoDecker.Visibility = Visibility.Visible;
+            PlayerQuantityOfThreeDecker.Visibility = Visibility.Visible;
+            PlayerQuantityOfFourDecker.Visibility = Visibility.Visible;
 
-            IleJednomaszt.Visibility = Visibility.Visible;
-            IleDwumaszt.Visibility = Visibility.Visible;
-            IleTrojmaszt.Visibility = Visibility.Visible;
-            IleCzteromaszt.Visibility = Visibility.Visible;
+            ComputerQuantityOfOneDecker.Visibility = Visibility.Visible;
+            ComputerQuantityOfTwoDecker.Visibility = Visibility.Visible;
+            ComputerQuantityOfThreeDecker.Visibility = Visibility.Visible;
+            ComputerQuantityOfFourDecker.Visibility = Visibility.Visible;
 
-            StatystkiGracz.Visibility = Visibility.Visible;
-            StatystkiKomputer.Visibility = Visibility.Visible;
+            PlayerStatistics.Visibility = Visibility.Visible;
+            ComputerStatistics.Visibility = Visibility.Visible;
         }
 
-        public void Image_StrzelanieWPolaKomputera(object sender, RoutedEventArgs e)
+        public void Image_ShootingInComputerFields(object sender, RoutedEventArgs e)
         {
-            if (StanGry != Stan.RuchGracza) return;
+            if (GameState != State.PlayerMove) return;
             int y = Grid.GetColumn((Image) sender);
             int x = Grid.GetRow((Image) sender);
-            var akcjaPoStrzale = Gra.PrzeciwnikKomputerowy.Strzal(x, y);
-            switch(akcjaPoStrzale)
+            var actionAfterShot = Game.Pc.Shot(x, y);
+            switch(actionAfterShot)
             {
-                case AkcjaPoStrzale.Trafiony:
-                    Informacje.Text = "Trafiony!";
-                    StanGry = Stan.RuchGracza;
+                case ActionAfterShot.Hit:
+                    Informations.Text = "Trafiony!";
+                    GameState = State.PlayerMove;
                     break;
-                case AkcjaPoStrzale.Pudlo:
-                    Przebieg.Content = "Ruch Komputera";
-                    Informacje.Text = "Pudło!";
-                    Rysuj(false);
-                    StanGry = Stan.RuchKomputera;
-                    RuchKomputera();
+                case ActionAfterShot.Miss:
+                    ActionButton.Content = "Ruch Komputera";
+                    Informations.Text = "Pudło!";
+                    Show(false);
+                    GameState = State.ComputerMove;
+                    ComputerMove();
                     break;
-                case AkcjaPoStrzale.Zatopiony:
-                    Informacje.Text = "Trafiony Zatopiony!";
-                    AkutalizujStatystykiGracza();
-                    StanGry = Stan.RuchGracza;
+                case ActionAfterShot.Sinked:
+                    Informations.Text = "Trafiony Zatopiony!";
+                    UpdatePlayerStatistics();
+                    GameState = State.PlayerMove;
                     //Jesli Gracz wygral
-                    if (Gra.PrzeciwnikKomputerowy.CzyKoniec())
+                    if (Game.Pc.CheckIsEnd())
                     {
-                        ZakonczGre(Gra.Player);
+                        EndGame(Game.Player);
                     }
                     break;
-                case AkcjaPoStrzale.Blad:
-                    Informacje.Text = "Tu już strzelałeś";
+                case ActionAfterShot.Error:
+                    Informations.Text = "Tu już strzelałeś";
                     return;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            Rysuj(StanGry == Stan.RuchGracza);
+            Show(GameState == State.PlayerMove);
         }
 
-        public void Image_Chwytanie(object sender, RoutedEventArgs e)
+        public void Image_Grabbing(object sender, RoutedEventArgs e)
         {
             //Sprawdzic czy mozna chwycic
-            if (StanGry != Stan.Rozstawianie || OstatniChwytany.CzyChwycono) return;
+            if (GameState != State.Preordering || LastGrap.IsGrabbed) return;
 
-            int dlugosc = ZnajdzDlugoscStatku(sender as Image);
-            int ilosc = Gra.Player.Statki.Count(s => s.Dlugosc == dlugosc && s.CzyUstawiony == false);
-            if (ilosc <= 0) return;
+            int length = FindShipLength(sender as Image);
+            int quantity = Game.Player.Ships.Count(s => s.Length == length && s.IsSet == false);
+            if (quantity <= 0) return;
 
-            OstatniChwytany.Dlugosc = dlugosc;
-            OstatniChwytany.CzyChwycono = true;
-            OstatniChwytany.Kierunek = Kierunek.Dol;
-            OstatniChwytany.IloscNieustawionychStatkow = ilosc;
+            LastGrap.Length = length;
+            LastGrap.IsGrabbed = true;
+            LastGrap.Direction = Direction.Down;
+            LastGrap.QuantityOfUnsituated = quantity;
             
-            UstawKursorPlanszy(InformacyjnyGrid, Cursors.Arrow);
+            SetCursorOfBoard(InformationGrid, Cursors.Arrow);
         }
 
-        private static int ZnajdzDlugoscStatku(Image obrazek)
+        private static int FindShipLength(Image obrazek)
         {
-            int wiersz = Grid.GetRow(obrazek);
-            if(wiersz > 4 || wiersz < 1) throw new ArgumentException("Niepoprawny wiersz");
+            int row = Grid.GetRow(obrazek);
+            if(row > 4 || row < 1) throw new ArgumentException("Niepoprawny wiersz");
 
-            return 5 - wiersz; //bo w pierwszym wierszu mamy czteromasztowca, w drugim troj itp itd
+            return 5 - row; //bo w pierwszym wierszu mamy czteromasztowca, w drugim troj itp itd
 
         }
 
-        public void Image_UpuszczanieStatku(object sender, RoutedEventArgs e)
+        public void Image_DroppingShips(object sender, RoutedEventArgs e)
         {
             //Sprawdzic czy mozna
-            if (StanGry != Stan.Rozstawianie || !OstatniChwytany.CzyChwycono || !OstatniChwytany.CzyMoznaPostawic)
+            if (GameState != State.Preordering || !LastGrap.IsGrabbed || !LastGrap.IsPossibleToPlace)
                 return;
 
             //Zmienic kolor statku
-            foreach (var pole in OstatniChwytany.DozwolonePola)
+            foreach (var field in LastGrap.AvailableFields)
             {
-                var element = PlanszaGracza.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
-                element.Source = new BitmapImage(UriObrazkowDoGry[RodzajPola.Statek]);
+                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                element.Source = new BitmapImage(UrisImagesToGame[KindOfField.Ship]);
             }
 
-            var statek = Gra.Player.Statki.First(s => s.Dlugosc == OstatniChwytany.Dlugosc && !s.CzyUstawiony);
-            statek.X = OstatniChwytany.X;
-            statek.Y = OstatniChwytany.Y;
-            statek.Kierunek = OstatniChwytany.Kierunek;
-            statek.CzyUstawiony = true;
-            OstatniChwytany.DozwolonePola.ForEach(p => p.TypPola = RodzajPola.Statek);
-            OstatniChwytany.IloscNieustawionychStatkow--;
+            var ship = Game.Player.Ships.First(s => s.Length == LastGrap.Length && !s.IsSet);
+            ship.X = LastGrap.X;
+            ship.Y = LastGrap.Y;
+            ship.Direction = LastGrap.Direction;
+            ship.IsSet = true;
+            LastGrap.AvailableFields.ForEach(p => p.TypeOfField = KindOfField.Ship);
+            LastGrap.QuantityOfUnsituated--;
 
-            int wiersz = 5 - OstatniChwytany.Dlugosc;
-            var napis = InformacyjnyGrid.Children.OfType<Label>().First(l => Grid.GetRow(l) == wiersz);
-            napis.Content = "x " + OstatniChwytany.IloscNieustawionychStatkow;
+            int row = 5 - LastGrap.Length;
+            var label = InformationGrid.Children.OfType<Label>().First(l => Grid.GetRow(l) == row);
+            label.Content = "x " + LastGrap.QuantityOfUnsituated;
 
-            OstatniChwytany.CzyChwycono = false;
-            OstatniChwytany.Dlugosc = 0;
-            OstatniChwytany.DozwolonePola = null;
-            OstatniChwytany.KolorowanePola = null;
+            LastGrap.IsGrabbed = false;
+            LastGrap.Length = 0;
+            LastGrap.AvailableFields = null;
+            LastGrap.FieldsToPaint = null;
 
-            bool czyUstawiono = Gra.Player.CzyUstawiono();
-            Przebieg.IsEnabled = czyUstawiono; //Jesli ustawiono wszystkie statki to mozna kontynuowac
+            bool isSet = Game.Player.CheckIfSet();
+            ActionButton.IsEnabled = isSet; //Jesli ustawiono wszystkie statki to mozna kontynuowac
 
-            UstawKursorPlanszy(PlanszaGracza, Cursors.Arrow);
-            UstawKursorPlanszy(InformacyjnyGrid, czyUstawiono ? Cursors.Arrow : Cursors.Hand);
+            SetCursorOfBoard(PlayerBoard, Cursors.Arrow);
+            SetCursorOfBoard(InformationGrid, isSet ? Cursors.Arrow : Cursors.Hand);
 
             //Ustawic flage
         }
 
-        public void Image_WjezdzanieKursoraNaPole(object sender, RoutedEventArgs e)
+        public void Image_EnteringCursorOnField(object sender, RoutedEventArgs e)
         {
             //Czy jest chwycony statek
-            if (StanGry != Stan.Rozstawianie || !OstatniChwytany.CzyChwycono) return;
+            if (GameState != State.Preordering || !LastGrap.IsGrabbed) return;
 
-            var obrazek = (Image) sender;
-            int y = Grid.GetColumn(obrazek);
-            int x = Grid.GetRow(obrazek);
+            var image = (Image) sender;
+            int y = Grid.GetColumn(image);
+            int x = Grid.GetRow(image);
 
-            OstatniChwytany.X = x;
-            OstatniChwytany.Y = y;
-            switch (OstatniChwytany.Kierunek)
+            LastGrap.X = x;
+            LastGrap.Y = y;
+            switch (LastGrap.Direction)
             {
-                case Kierunek.Dol:
-                    OstatniChwytany.KolorowanePola =
-                        Gra.Player.PlanszaUzytkownika.ListaPol.Where(
-                            p => p.X == x && p.Y >= y && p.Y <= y + OstatniChwytany.Dlugosc - 1).ToList();
+                case Direction.Down:
+                    LastGrap.FieldsToPaint =
+                        Game.Player.UsersBoard.ListOfFields.Where(
+                            p => p.X == x && p.Y >= y && p.Y <= y + LastGrap.Length - 1).ToList();
                     break;
-                case Kierunek.Prawo:
-                    OstatniChwytany.KolorowanePola =
-                        Gra.Player.PlanszaUzytkownika.ListaPol.Where(
-                            p => p.Y == y && p.X >= x && p.X <= x + OstatniChwytany.Dlugosc - 1).ToList();
+                case Direction.Right:
+                    LastGrap.FieldsToPaint =
+                        Game.Player.UsersBoard.ListOfFields.Where(
+                            p => p.Y == y && p.X >= x && p.X <= x + LastGrap.Length - 1).ToList();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            var okolica = Gra.Player.PlanszaUzytkownika.ZnajdzOkolice(OstatniChwytany.KolorowanePola);
-            OstatniChwytany.DozwolonePola =
-                OstatniChwytany.KolorowanePola.Where(p => p.TypPola == RodzajPola.Puste).ToList();
+            var surround = Game.Player.UsersBoard.FindSurround(LastGrap.FieldsToPaint);
+            LastGrap.AvailableFields =
+                LastGrap.FieldsToPaint.Where(p => p.TypeOfField == KindOfField.Empty).ToList();
 
             //Ustawia odpowiednio kolory w zaleznosci od tego czy mozna postawic statek
-            var moznaPostawic = OstatniChwytany.DozwolonePola.Count == OstatniChwytany.Dlugosc && !okolica.Exists(p => p.TypPola == RodzajPola.Statek);
-            OstatniChwytany.CzyMoznaPostawic = moznaPostawic;
+            var possibleToPlace = LastGrap.AvailableFields.Count == LastGrap.Length && !surround.Exists(p => p.TypeOfField == KindOfField.Ship);
+            LastGrap.IsPossibleToPlace = possibleToPlace;
 
-            obrazek.Cursor = moznaPostawic ? Cursors.Hand : Cursors.Arrow;
+            image.Cursor = possibleToPlace ? Cursors.Hand : Cursors.Arrow;
 
-            foreach (var pole in OstatniChwytany.KolorowanePola)
+            foreach (var field in LastGrap.FieldsToPaint)
             {
-                var element = PlanszaGracza.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
-                element.Source = new BitmapImage(UriCzyMoznaPolozycStatek[moznaPostawic]);
+                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                element.Source = new BitmapImage(UriPossibilitiesToPlaceShip[possibleToPlace]);
             }
 
         }
 
-        public void Image_WyjezdzanieKursoraZPola(object sender, RoutedEventArgs e)
+        public void Image_LeavingCursorFromField(object sender, RoutedEventArgs e)
         {
             //Czy jest chwycony
-            if (StanGry != Stan.Rozstawianie || !OstatniChwytany.CzyChwycono) return;
+            if (GameState != State.Preordering || !LastGrap.IsGrabbed) return;
             
-            foreach (var pole in OstatniChwytany.KolorowanePola)
+            foreach (var field in LastGrap.FieldsToPaint)
             {
-                var element = PlanszaGracza.Children.OfType<Image>().First(i => Grid.GetRow(i) == pole.X && Grid.GetColumn(i) == pole.Y); //TODO: Osobna funkcja?
-                element.Source = new BitmapImage(UriObrazkowDoGry[pole.TypPola]);
+                var element = PlayerBoard.Children.OfType<Image>().First(i => Grid.GetRow(i) == field.X && Grid.GetColumn(i) == field.Y); //TODO: Osobna funkcja?
+                element.Source = new BitmapImage(UrisImagesToGame[field.TypeOfField]);
             }
-            var obrazek = (Image) sender;
-            obrazek.Cursor = Cursors.Arrow;
+            var image = (Image) sender;
+            image.Cursor = Cursors.Arrow;
             //Ustawic pola na neutralne
         }
 
-        private void ZakonczGre(Uzytkownik uzytkownik)
+        private void EndGame(User user)
         {
-            StanGry = Stan.Koniec;
-            Rysuj();
-            Przebieg.Content = "KONIEC";
-            Przebieg.IsEnabled = true;
-            UstawKursorPlanszy(PlanszaKomputera, Cursors.Arrow);
-            UstawKursorPlanszy(PlanszaGracza, Cursors.Arrow);
-            if (uzytkownik is Gracz)
+            GameState = State.End;
+            Show();
+            ActionButton.Content = "KONIEC";
+            ActionButton.IsEnabled = true;
+            SetCursorOfBoard(ComputerBoard, Cursors.Arrow);
+            SetCursorOfBoard(PlayerBoard, Cursors.Arrow);
+            if (user is Player)
             {
-                Instrukcje.Text = "Brawo!\nRozwliłeś komputera.";
+                Instructions.Text = "Brawo!\nRozwliłeś komputera.";
             }
-            else if(uzytkownik is Komputer)
+            else if(user is Computer)
             {
-                Instrukcje.Text = "Beznadziejnie!\nKomputer z Tobą wygrał.";
+                Instructions.Text = "Beznadziejnie!\nKomputer z Tobą wygrał.";
 
             }
             else
@@ -429,54 +420,54 @@ namespace MKlimowski___gra_w_statki
             }
         }
 
-        public void AkutalizujStatystykiKomputera()
+        public void UpdateComputerStatistics()
         {
-            var statki = Gra.Player.Statki;
-            IleJednomasztG.Content = "x " + statki.Count(s => s.Dlugosc == 1 && s.CzyZatopiony == false);
-            IleDwumasztG.Content = "x " + statki.Count(s => s.Dlugosc == 2 && s.CzyZatopiony == false);
-            IleTrojmasztG.Content = "x " + statki.Count(s => s.Dlugosc == 3 && s.CzyZatopiony == false);
-            IleCzteromasztG.Content = "x " + statki.Count(s => s.Dlugosc == 4 && s.CzyZatopiony == false);
+            var ships = Game.Player.Ships;
+            PlayerQuantityOfOneDecker.Content = "x " + ships.Count(s => s.Length == 1 && s.IsSinked == false);
+            PlayerQuantityOfTwoDecker.Content = "x " + ships.Count(s => s.Length == 2 && s.IsSinked == false);
+            PlayerQuantityOfThreeDecker.Content = "x " + ships.Count(s => s.Length == 3 && s.IsSinked == false);
+            PlayerQuantityOfFourDecker.Content = "x " + ships.Count(s => s.Length == 4 && s.IsSinked == false);
         }
 
-        public void AkutalizujStatystykiGracza()
+        public void UpdatePlayerStatistics()
         {
-            var statki = Gra.PrzeciwnikKomputerowy.Statki;
-            IleJednomaszt.Content = "x " + statki.Count(s => s.Dlugosc == 1 && s.CzyZatopiony == false);
-            IleDwumaszt.Content = "x " + statki.Count(s => s.Dlugosc == 2 && s.CzyZatopiony == false);
-            IleTrojmaszt.Content = "x " + statki.Count(s => s.Dlugosc == 3 && s.CzyZatopiony == false);
-            IleCzteromaszt.Content = "x " + statki.Count(s => s.Dlugosc == 4 && s.CzyZatopiony == false);
+            var ships = Game.Pc.Ships;
+            ComputerQuantityOfOneDecker.Content = "x " + ships.Count(s => s.Length == 1 && s.IsSinked == false);
+            ComputerQuantityOfTwoDecker.Content = "x " + ships.Count(s => s.Length == 2 && s.IsSinked == false);
+            ComputerQuantityOfThreeDecker.Content = "x " + ships.Count(s => s.Length == 3 && s.IsSinked == false);
+            ComputerQuantityOfFourDecker.Content = "x " + ships.Count(s => s.Length == 4 && s.IsSinked == false);
         }
 
-        private async void RuchKomputera()
+        private async void ComputerMove()
         {
 
             while (true)
             {
-                if (StanGry != Stan.RuchKomputera) return;
+                if (GameState != State.ComputerMove) return;
                 await Task.Delay(100); //TODO: ustawić na normalna wartosc - 800
-                if (Gra.RuchKomputera())
+                if (Game.ComputerMove())
                 {
-                    Informacje.Text = "Trafiony Zatopiony!";
-                    AkutalizujStatystykiKomputera();
-                    ZakonczGre(Gra.PrzeciwnikKomputerowy);
+                    Informations.Text = "Trafiony Zatopiony!";
+                    UpdateComputerStatistics();
+                    EndGame(Game.Pc);
                     return;
                 }
-                if (Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Trafiony ||
-                         Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Zatopiony)
+                if (Game.Pc.LastAction == ActionAfterShot.Hit ||
+                         Game.Pc.LastAction == ActionAfterShot.Sinked)
                 {
-                    AkutalizujStatystykiKomputera();
-                    Informacje.Text = Gra.PrzeciwnikKomputerowy.OstatniaAkcja == AkcjaPoStrzale.Trafiony ?
+                    UpdateComputerStatistics();
+                    Informations.Text = Game.Pc.LastAction == ActionAfterShot.Hit ?
                                         "Trafiony!" : "Trafiony Zatopiony!";
-                    StanGry = Stan.RuchKomputera;
-                    Przebieg.Content = "Ruch Komputera";
-                    Rysuj(false);
+                    GameState = State.ComputerMove;
+                    ActionButton.Content = "Ruch Komputera";
+                    Show(false);
                 }
                 else
                 {
-                    StanGry = Stan.RuchGracza;
-                    Informacje.Text = "Pudło!";
-                    Przebieg.Content = "Twój Ruch";
-                    Rysuj();
+                    GameState = State.PlayerMove;
+                    Informations.Text = "Pudło!";
+                    ActionButton.Content = "Twój Ruch";
+                    Show();
                     break;
                 }
             }
@@ -484,24 +475,24 @@ namespace MKlimowski___gra_w_statki
 
         private void Przebieg_Click(object sender, RoutedEventArgs e)
         {
-            switch (StanGry)
+            switch (GameState)
             {
-                case Stan.Start:
-                    StanGry = Stan.Rozstawianie;
-                    PokazInformacjeDoUstawianiaStatkow();
+                case State.Start:
+                    GameState = State.Preordering;
+                    ShowInfromationToSettingShips();
                     break;
 
-                case Stan.Rozstawianie:
-                    SchowajInformacjeDoUstawiania();
-                    StanGry = Stan.RuchGracza;
-                    Gra.PrzeciwnikKomputerowy.LosujStatki();
-                    Rysuj();
-                    Przebieg.IsEnabled = false;
-                    Przebieg.Content = "Twój Ruch";
-                    Instrukcje.Text = "Intrukcje:\nZaznacz pole na planszy komputera gdzie chcesz strzelić";
-                    PrzypiszEventPrzyciskuPlanszy(PlanszaKomputera, Image_StrzelanieWPolaKomputera, MouseLeftButtonDownEvent);
+                case State.Preordering:
+                    HideInformationToSettingsShips();
+                    GameState = State.PlayerMove;
+                    Game.Pc.PickShips();
+                    Show();
+                    ActionButton.IsEnabled = false;
+                    ActionButton.Content = "Twój Ruch";
+                    Instructions.Text = "Intrukcje:\nZaznacz pole na planszy komputera gdzie chcesz strzelić";
+                    AssignMouseButtonEventToBoard(ComputerBoard, Image_ShootingInComputerFields, MouseLeftButtonDownEvent);
                     break;
-                case Stan.Koniec:
+                case State.End:
                     Application.Current.Shutdown();
                     break;
                 default:
@@ -511,67 +502,67 @@ namespace MKlimowski___gra_w_statki
 
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
-            if (StanGry != Stan.Rozstawianie) return;
+            if (GameState != State.Preordering) return;
 
-            Gra.Player.Resetuj();
-            UstawKursorPlanszy(InformacyjnyGrid, Cursors.Hand);
-            var listaNapisowIlosciStatkow = InformacyjnyGrid.Children.OfType<Label>().ToList();
+            Game.Player.Reset();
+            SetCursorOfBoard(InformationGrid, Cursors.Hand);
+            var listOfLabelsWithQuantityOfShips = InformationGrid.Children.OfType<Label>().ToList();
 
-            foreach(var napis in listaNapisowIlosciStatkow)
+            foreach(var label in listOfLabelsWithQuantityOfShips)
             {
-                napis.Content = "x " + Grid.GetRow(napis);
+                label.Content = "x " + Grid.GetRow(label);
             }
 
-            Przebieg.IsEnabled = false;
-            Rysuj(false);
+            ActionButton.IsEnabled = false;
+            Show(false);
         }
 
         private void Losuj_Click(object sender, RoutedEventArgs e)
         {
-            if (StanGry != Stan.Rozstawianie) return;
+            if (GameState != State.Preordering) return;
 
-            Gra.Player.LosujStatki();
-            UstawKursorPlanszy(PlanszaGracza, Cursors.Arrow);
-            UstawKursorPlanszy(InformacyjnyGrid, Cursors.Arrow);
-            InformacyjnyGrid.Children.OfType<Label>().ToList().ForEach(l => l.Content = "x 0");
-            Przebieg.IsEnabled = true;
-            Rysuj(false);
+            Game.Player.PickShips();
+            SetCursorOfBoard(PlayerBoard, Cursors.Arrow);
+            SetCursorOfBoard(InformationGrid, Cursors.Arrow);
+            InformationGrid.Children.OfType<Label>().ToList().ForEach(l => l.Content = "x 0");
+            ActionButton.IsEnabled = true;
+            Show(false);
         }
 
         private void Obroc_Click(object sender, RoutedEventArgs e)
         {
-            if (StanGry != Stan.Rozstawianie || !OstatniChwytany.CzyChwycono) return;
+            if (GameState != State.Preordering || !LastGrap.IsGrabbed) return;
 
-            OstatniChwytany.Kierunek = OstatniChwytany.Kierunek == Kierunek.Dol ? Kierunek.Prawo : Kierunek.Dol;
+            LastGrap.Direction = LastGrap.Direction == Direction.Down ? Direction.Right : Direction.Down;
         }
     }
 
     //TODO: nie wiem czy ten plik
-    public enum Stan
+    public enum State
     {
-        Start, Rozstawianie, RuchGracza, RuchKomputera, Koniec
+        Start, Preordering, PlayerMove, ComputerMove, End
     }
 
-    public class DaneChwytaniaStatkow : IPolozenie
+    public class GrabbingShipsData : ILocation
     {
         public int X { get; set; }
         public int Y { get; set; }
-        public bool CzyChwycono { get; set; }
-        public int Dlugosc { get; set; }
-        public Kierunek Kierunek { get; set; }
-        public List<Pole> KolorowanePola { get; set; }
-        public List<Pole> DozwolonePola { get; set; }
-        public int IloscNieustawionychStatkow { get; set; }
-        public bool CzyMoznaPostawic { get; set; }
+        public bool IsGrabbed { get; set; }
+        public int Length { get; set; }
+        public Direction Direction { get; set; }
+        public List<Field> FieldsToPaint { get; set; }
+        public List<Field> AvailableFields { get; set; }
+        public int QuantityOfUnsituated { get; set; }
+        public bool IsPossibleToPlace { get; set; }
 
-        public DaneChwytaniaStatkow()
+        public GrabbingShipsData()
         {
-            KolorowanePola = null;
-            DozwolonePola = null;
-            CzyChwycono = false;
-            CzyMoznaPostawic = false;
-            Dlugosc = 0;
-            Kierunek = Kierunek.Dol;
+            FieldsToPaint = null;
+            AvailableFields = null;
+            IsGrabbed = false;
+            IsPossibleToPlace = false;
+            Length = 0;
+            Direction = Direction.Down;
         }
 
     }

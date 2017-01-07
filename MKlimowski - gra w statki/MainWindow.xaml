@@ -17,10 +17,10 @@
             <ColumnDefinition Width="320"/>
             <ColumnDefinition Width="400"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" Grid.Row="0" Background="#FF3C3C3F">
+        <Border Grid.Column="0" Grid.Row="0" Background="#FF7E7E7E">
             <TextBlock x:Name="NaglowekGracza" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Twoja Plansza" VerticalAlignment="Center" FontWeight="Bold" FontSize="42"/>
         </Border>
-        <Border Grid.Column="2" Grid.Row="0" Background="#FF3C3C3F">
+        <Border Grid.Column="2" Grid.Row="0" Background="#FF7E7E7E">
             <TextBlock x:Name="NaglowekKomputera" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Plansza Komputera" VerticalAlignment="Center" FontWeight="Bold" FontSize="42"/>
         </Border>
         <Border Grid.Column="0" Grid.Row="2" Background="#FF7E7E7E">
@@ -36,15 +36,15 @@
                     <ColumnDefinition Width="160"/>
                     <ColumnDefinition Width="40"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="StatystkiGracz" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Twoje niezatopione statki:" VerticalAlignment="Center" Visibility="Hidden"/>
-                <Image x:Name="CzteromasztG" HorizontalAlignment="Right" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
-                <Image x:Name="TrojmasztG" HorizontalAlignment="Right" Height="40" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
-                <Image x:Name="DwumasztG" HorizontalAlignment="Right" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
-                <Image x:Name="JednomasztG" HorizontalAlignment="Right" Height="40" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
-                <Label x:Name="IleCzteromasztG" Content="x 1" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
-                <Label x:Name="IleTrojmasztG" Content="x 2" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
-                <Label x:Name="IleDwumasztG" Content="x 3" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
-                <Label x:Name="IleJednomasztG" Content="x 4" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <TextBlock x:Name="PlayerStatistics" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Twoje niezatopione statki:" VerticalAlignment="Center" Visibility="Hidden"/>
+                <Image x:Name="PlayerFourDecker" HorizontalAlignment="Right" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
+                <Image x:Name="PlayerThreeDecker" HorizontalAlignment="Right" Height="40" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
+                <Image x:Name="PlayerTwoDecker" HorizontalAlignment="Right" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
+                <Image x:Name="PlayerOneDecker" HorizontalAlignment="Right" Height="40" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
+                <Label x:Name="PlayerQuantityOfFourDecker" Content="x 1" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="PlayerQuantityOfThreeDecker" Content="x 2" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="PlayerQuantityOfTwoDecker" Content="x 3" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="PlayerQuantityOfOneDecker" Content="x 4" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
             </Grid>
         </Border>
         <Border Grid.Column="2" Grid.Row="2" Background="#FF7E7E7E">
@@ -60,23 +60,23 @@
                     <ColumnDefinition Width="160"/>
                     <ColumnDefinition Width="40"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="StatystkiKomputer" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Do trafienia jeszcze:" VerticalAlignment="Center" Visibility="Hidden"/>
-                <Image x:Name="Czteromaszt" HorizontalAlignment="Right" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
-                <Image x:Name="Trojmaszt" HorizontalAlignment="Right" Height="40" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
-                <Image x:Name="Dwumaszt" HorizontalAlignment="Right" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
-                <Image x:Name="Jednomaszt" HorizontalAlignment="Right" Height="40" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
-                <Label x:Name="IleCzteromaszt" Content="x 1" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
-                <Label x:Name="IleTrojmaszt" Content="x 2" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
-                <Label x:Name="IleDwumaszt" Content="x 3" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
-                <Label x:Name="IleJednomaszt" Content="x 4" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <TextBlock x:Name="ComputerStatistics" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Do trafienia jeszcze:" VerticalAlignment="Center" Visibility="Hidden"/>
+                <Image x:Name="ComputerFourDecker" HorizontalAlignment="Right" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
+                <Image x:Name="ComputerThreeDecker" HorizontalAlignment="Right" Height="40" Grid.Column="2" Grid.Row="1" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
+                <Image x:Name="ComputerTwoDecker" HorizontalAlignment="Right" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
+                <Image x:Name="ComputerOneDecker" HorizontalAlignment="Right" Height="40" Grid.Column="2" Grid.Row="2" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
+                <Label x:Name="ComputerQuantityOfFourDecker" Content="x 1" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="ComputerQuantityOfThreeDecker" Content="x 2" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="ComputerQuantityOfTwoDecker" Content="x 3" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
+                <Label x:Name="ComputerQuantityOfOneDecker" Content="x 4" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Center" FontSize="24" Visibility="Hidden"/>
             </Grid>
         </Border>
-        <TextBlock x:Name="Instrukcje" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Instrukcja" VerticalAlignment="Stretch" FontSize="16" TextAlignment="Justify"/>
-        <Grid x:Name ="PlanszaGracza" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column ="0" VerticalAlignment="Stretch"/>
-        <Grid x:Name ="PlanszaKomputera" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column ="2" VerticalAlignment="Stretch"/>
-        <Button x:Name="Przebieg" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="2" Content="START" Background="#FF45B840" Click="Przebieg_Click"/>
+        <TextBlock x:Name="Instructions" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" TextWrapping="Wrap" Text="Instrukcja" VerticalAlignment="Stretch" FontSize="16" TextAlignment="Justify"/>
+        <Grid x:Name ="PlayerBoard" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column ="0" VerticalAlignment="Stretch"/>
+        <Grid x:Name ="ComputerBoard" HorizontalAlignment="Stretch" Grid.Row="1" Grid.Column ="2" VerticalAlignment="Stretch"/>
+        <Button x:Name="ActionButton" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="2" Content="START" Background="#FF45B840" Click="Przebieg_Click"/>
         <Border Grid.Column="1" Grid.Row="1" Background="#FFDEDEDE">
-            <Grid x:Name="InformacyjnyGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid x:Name="InformationGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="60"/>
@@ -91,22 +91,22 @@
                     <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Background="#FFDDE445"/>
-                <Border x:Name="RamkaJednomasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Background="#FFDADCAF" Visibility="Hidden"/>
-                <Border x:Name="RamkaDwumasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Background="#FFDDE445" Visibility="Hidden"/>
-                <Border x:Name="RamkaTrojmasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Background="#FFDADCAF" Visibility="Hidden"/>
-                <Border x:Name="RamkaCzteromasztowca" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Background="#FFDDE445" Visibility="Hidden"/>
-                <TextBlock x:Name="Informacje" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" TextAlignment="Justify"/>
+                <Border x:Name="BorderOfOneDecker" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Background="#FFDADCAF" Visibility="Hidden"/>
+                <Border x:Name="BorderOfTwoDecker" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Background="#FFDDE445" Visibility="Hidden"/>
+                <Border x:Name="BorderOfThreeDecker" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Background="#FFDADCAF" Visibility="Hidden"/>
+                <Border x:Name="BorderOfFourDecker" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Background="#FFDDE445" Visibility="Hidden"/>
+                <TextBlock x:Name="Informations" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" TextAlignment="Justify"/>
                 <Button x:Name="Reset" Grid.Column="1" HorizontalAlignment="Stretch" Grid.Row="6" VerticalAlignment="Stretch" Content="Reset" Click="Reset_Click" Background="#FF93FFFF" Visibility="Hidden"/>
-                <Button x:Name="Losuj" Content="Losuj" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="0" VerticalAlignment="Stretch" Click="Losuj_Click" Background="#FF93FFFF" Visibility="Hidden"/>
-                <Button x:Name="Obroc" Content="Obróć" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FF2B4DC1" Visibility="Hidden" Click="Obroc_Click"/>
-                <Image x:Name="Czteromasztowiec" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
-                <Image x:Name="Trojmasztowiec" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
-                <Image x:Name="Dwumasztowiec" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
-                <Image x:Name="Jednomasztowiec" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
-                <Label x:Name="OpisCzteromasztowca" Content="x 1" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
-                <Label x:Name="OpisTrojmasztowca" Content="x 2" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
-                <Label x:Name="OpisDwumasztowca" Content="x 3" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
-                <Label x:Name="OpisJednomasztowca" Content="x 4" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
+                <Button x:Name="Pick" Content="Losuj" HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="0" VerticalAlignment="Stretch" Click="Losuj_Click" Background="#FF93FFFF" Visibility="Hidden"/>
+                <Button x:Name="Turn" Content="Obróć" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FF2B4DC1" Visibility="Hidden" Click="Obroc_Click"/>
+                <Image x:Name="FourDecker" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="160" Visibility="Hidden"/>
+                <Image x:Name="ThreeDecker" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="120" Visibility="Hidden"/>
+                <Image x:Name="TwoDecker" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Width="80" Visibility="Hidden"/>
+                <Image x:Name="OneDecker" HorizontalAlignment="Center" Height="40" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Width="40" Visibility="Hidden"/>
+                <Label x:Name="QuantityOfFourDecker" Content="x 1" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
+                <Label x:Name="QuantityOfThreeDecker" Content="x 2" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
+                <Label x:Name="QuantityOfTwoDecker" Content="x 3" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
+                <Label x:Name="QuantityOfOneDecker" Content="x 4" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" FontSize="42" Visibility="Hidden"/>
             </Grid>
         </Border>
     </Grid>
