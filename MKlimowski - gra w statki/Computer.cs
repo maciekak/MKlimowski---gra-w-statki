@@ -173,21 +173,11 @@ namespace MKlimowski___gra_w_statki
 
         private static Field PickByPriority(List<Field> priorityList)
         {
-            //Losowanie priorytetowe
-            //Tworzy sie nowa liste z polami w zaleznosci od priorytetu, to znaczy dane pole w tej liscie
-            //powtarza sie tyle razy jaki ma priorytet
-            //Np jesli na wejsciu mamy 'A' o priorytecie 3 i 'B' o priorytecie 2 i 'C' o priorytecie 1
-            //to po stworzeniu listy bedziemy mieli 'A','A','A','B','B','C' i z tej listy juz normalne losowanie
-            var flatList = new List<Field>();
-
-            foreach (var field in priorityList)
-            {
-                flatList.AddRange(Enumerable.Repeat(field, field.Priority));
-            }
-
-            var generator = new Random(new object().GetHashCode());
-            int picked = generator.Next(flatList.Count);
-            return flatList[picked];
+            //Szukamy najwiekszego priorytetu i losujemy pola tylko z najwiekszym priorytetem
+            var sortedList = priorityList.OrderByDescending(f => f.Priority).ToList();
+            var maxPriorityField = sortedList[0];
+            var maxPriorityFields = sortedList.Where(f => f.Priority == maxPriorityField.Priority).ToList();
+            return GetRandomField(maxPriorityFields, new Random());
         }
 
         public Computer()
