@@ -66,11 +66,8 @@ namespace MKlimowski___gra_w_statki
             var lastX = field.X - 1;
             while (true)
             {
-                var neighbouringField =
-                    UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(lastX, field.Y));
-
-                if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
-                    neighbouringField.TypeOfField == KindOfField.Empty)
+                var neighbouringField = GetPossibleField(lastX, field.Y);
+                if (neighbouringField == null)
                     break;
 
                 //Jesli jest nietrafione pole ze statkiem to mamy pewnosc, ze statek nie jest zatopiony - analogicznie w kazdym
@@ -84,12 +81,10 @@ namespace MKlimowski___gra_w_statki
             lastX = field.X + 1;
             while (true)
             {
-                var neighbouringField =
-                    UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(lastX, field.Y));
-
-                if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
-                    neighbouringField.TypeOfField == KindOfField.Empty)
+                var neighbouringField = GetPossibleField(lastX, field.Y);
+                if (neighbouringField == null)
                     break;
+
                 if (neighbouringField.TypeOfField == KindOfField.Ship)
                     return false;
 
@@ -101,12 +96,10 @@ namespace MKlimowski___gra_w_statki
             int lastY = field.Y - 1;
             while (true)
             {
-                var neighbouringField =
-                    UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(field.X, lastY));
-
-                if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
-                    neighbouringField.TypeOfField == KindOfField.Empty)
+                var neighbouringField = GetPossibleField(field.X, lastY);
+                if (neighbouringField == null)
                     break;
+
                 if (neighbouringField.TypeOfField == KindOfField.Ship)
                     return false;
                 collectHitFields.Add(neighbouringField);
@@ -117,12 +110,10 @@ namespace MKlimowski___gra_w_statki
             lastY = field.Y + 1;
             while (true)
             {
-                var neighbouringField =
-                    UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(field.X, lastY));
-
-                if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
-                    neighbouringField.TypeOfField == KindOfField.Empty)
+                var neighbouringField = GetPossibleField(field.X, lastY);
+                if (neighbouringField == null)
                     break;
+
                 if (neighbouringField.TypeOfField == KindOfField.Ship)
                     return false;
                 collectHitFields.Add(neighbouringField);
@@ -137,6 +128,17 @@ namespace MKlimowski___gra_w_statki
             //Ustawia wszystkie sasiednie pola statku jako pudla
             surround.ForEach(p => p.TypeOfField = KindOfField.Miss);
             return true;
+        }
+
+        private Field GetPossibleField(int x, int y)
+        {
+            var neighbouringField =
+                UsersBoard.ListOfFields.FirstOrDefault(p => p.CompareLocation(x, y));
+
+            if (neighbouringField == null || neighbouringField.TypeOfField == KindOfField.Miss ||
+                neighbouringField.TypeOfField == KindOfField.Empty)
+                return null;
+            return neighbouringField;
         }
 
         public bool CheckIsEnd()
@@ -158,10 +160,5 @@ namespace MKlimowski___gra_w_statki
                 }
             }
         }
-    }
-
-    public enum ActionAfterShot
-    {
-        Hit, Miss, Sinked, Error
     }
 }

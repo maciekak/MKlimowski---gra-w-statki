@@ -35,12 +35,6 @@ namespace MKlimowski___gra_w_statki
             fromList.ForEach(toList.Add);
         }
 
-        public static bool RemoveField(int x, int y, List<Field> listOfFields )
-        {
-            var itemToRemove = listOfFields.Single(p => p.CompareLocation(x, y));
-            return listOfFields.Remove(itemToRemove);
-        }
-
         public List<Field> FindSurround(List<Field> fields)
         {
             var surround = fields.SelectMany(p => ListOfFields.Where(a => a.CheckIsInSurround(p.X, p.Y))).ToList();
@@ -116,11 +110,7 @@ namespace MKlimowski___gra_w_statki
             //Dodajemy kolejne pola w prawo
             for(int x = field.X + 1; x < field.X + length; x++)
             {
-                var foundFields =
-                    ListOfFields.SingleOrDefault(
-                        p => p.CompareLocation(x, field.Y));
-
-                if (foundFields == null || foundFields.TypeOfField == KindOfField.Hit || foundFields.TypeOfField == KindOfField.Miss)
+                if (CheckFieldPossible(ListOfFields, x, field.Y))
                     break;
 
                 quantityOfHorizontallyFields++;
@@ -129,11 +119,7 @@ namespace MKlimowski___gra_w_statki
             //Dodajemy kolejne pola w lewo
             for (int x = field.X - 1; x > field.X - length; x--)
             {
-                var foundFields =
-                    ListOfFields.SingleOrDefault(
-                        p => p.CompareLocation(x, field.Y));
-
-                if (foundFields == null || foundFields.TypeOfField == KindOfField.Hit || foundFields.TypeOfField == KindOfField.Miss)
+                if (CheckFieldPossible(ListOfFields, x, field.Y))
                     break;
 
                 quantityOfHorizontallyFields++;
@@ -144,11 +130,7 @@ namespace MKlimowski___gra_w_statki
             //Dodajemy kolejne pola w dol
             for (int y = field.Y + 1; y < field.Y + length; y++)
             {
-                var foundFields =
-                    ListOfFields.SingleOrDefault(
-                        p => p.CompareLocation(field.X, y));
-
-                if (foundFields == null || foundFields.TypeOfField == KindOfField.Hit || foundFields.TypeOfField == KindOfField.Miss)
+                if (CheckFieldPossible(ListOfFields, field.X, y))
                     break;
 
                 quantityOfVerticallyFields++;
@@ -157,11 +139,7 @@ namespace MKlimowski___gra_w_statki
             //Dodajemy kolejne pola w gore
             for (int y = field.Y - 1; y > field.Y - length; y--)
             {
-                var foundFields =
-                    ListOfFields.SingleOrDefault(
-                        p => p.CompareLocation(field.X, y));
-
-                if (foundFields == null || foundFields.TypeOfField == KindOfField.Hit || foundFields.TypeOfField == KindOfField.Miss)
+                if (CheckFieldPossible(ListOfFields, field.X, y))
                     break;
 
                 quantityOfVerticallyFields++;
@@ -176,6 +154,16 @@ namespace MKlimowski___gra_w_statki
             priority += quantityOfPossibilitiesVertically > 0 ? quantityOfPossibilitiesVertically : 0;
 
             field.Priority = priority;
+        }
+
+        private static bool CheckFieldPossible(List<Field> fields, int x, int y)
+        {
+            var foundFields =
+                fields.SingleOrDefault(
+                    p => p.CompareLocation(x, y));
+
+            return foundFields == null || foundFields.TypeOfField == KindOfField.Hit ||
+                   foundFields.TypeOfField == KindOfField.Miss;
         }
 
         public List<Field> FindPriorityListOfFieldsForLongestShip(List<Ship> ships)
@@ -211,9 +199,5 @@ namespace MKlimowski___gra_w_statki
 
             return fieldsWithPriorities;
         }
-    }
-    public enum Direction
-    {
-        Down, Right
     }
 }

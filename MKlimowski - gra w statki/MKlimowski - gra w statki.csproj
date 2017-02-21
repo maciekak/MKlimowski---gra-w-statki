@@ -55,7 +55,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ActionAfterShot.cs" />
+    <Compile Include="Direction.cs" />
     <Compile Include="GrabbingShipsData.cs" />
+    <Compile Include="KindOfField.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="ILocation.cs" />
     <Compile Include="Computer.cs" />

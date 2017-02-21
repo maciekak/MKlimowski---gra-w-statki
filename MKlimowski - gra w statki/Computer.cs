@@ -49,7 +49,6 @@ namespace MKlimowski___gra_w_statki
             //(zaczyna sie na (0,0) i w prawo oraz zaczyna sie na (1,0) i w prawo))
             //Pozniej odbywa sie losowanie priorytetowe, o tym wiecej juz w odpowiedniej funkcji :)
             var generator = new Random(new object().GetHashCode());
-            int picked;
             switch (LastTypeOfShooting)
             {
                 case ShootingLogic.Normal:
@@ -72,8 +71,7 @@ namespace MKlimowski___gra_w_statki
                                 p.CompareLocation(LastField.X, LastField.Y + 1) ||
                                 p.CompareLocation(LastField.X, LastField.Y - 1)).ToList();
 
-                    picked = generator.Next(fields.Count);
-                    var field = fields[picked];
+                    var field = GetRandomField(fields, generator);
 
                     //Jesli wczesniej juz trafilismy w statek, czyli to jest drugi strzal w statek, to juz mozna wyliczyc kierunek w jakim stoi
                     if (field.TypeOfField == KindOfField.Ship)
@@ -97,42 +95,21 @@ namespace MKlimowski___gra_w_statki
                             int y = LastField.Y + 1;
                             while (true)
                             {
-                                var foundField =
-                                    playerBoard.ListOfFields.SingleOrDefault(
-                                        p => p.CompareLocation(LastField.X, y));
-
-                                if (foundField == null || foundField.TypeOfField == KindOfField.Miss)
+                                if (AddPossibleField(playerBoard, collectFieldsToShot, LastField.X, y))
                                     break;
-                                if (foundField.TypeOfField == KindOfField.Ship ||
-                                    foundField.TypeOfField == KindOfField.Empty)
-                                {
-                                    collectFieldsToShot.Add(foundField);
-                                    break;
-                                }
                                 y++;
                             }
                             //Idziemy w gore
                             y = LastField.Y - 1;
                             while (true)
                             {
-                                var foundField =
-                                    playerBoard.ListOfFields.SingleOrDefault(
-                                        p => p.CompareLocation(LastField.X, y));
-
-                                if (foundField == null || foundField.TypeOfField == KindOfField.Miss)
+                                if (AddPossibleField(playerBoard, collectFieldsToShot, LastField.X, y))
                                     break;
-                                if (foundField.TypeOfField == KindOfField.Ship ||
-                                    foundField.TypeOfField == KindOfField.Empty)
-                                {
-                                    collectFieldsToShot.Add(foundField);
-                                    break;
-                                }
                                 y--;
                             }
 
                             //Losowanie Pola
-                            picked = generator.Next(collectFieldsToShot.Count);
-                            var pickedField = collectFieldsToShot[picked];
+                            var pickedField = GetRandomField(collectFieldsToShot, generator);
                             if (pickedField.TypeOfField == KindOfField.Ship)
                             {
                                 LastField = pickedField;
@@ -143,42 +120,21 @@ namespace MKlimowski___gra_w_statki
                             int x = LastField.X + 1;
                             while (true)
                             {
-                                var foundField =
-                                    playerBoard.ListOfFields.SingleOrDefault(
-                                        p => p.CompareLocation(x, LastField.Y));
-
-                                if (foundField == null || foundField.TypeOfField == KindOfField.Miss)
+                                if (AddPossibleField(playerBoard, collectFieldsToShot, x, LastField.Y))
                                     break;
-                                if (foundField.TypeOfField == KindOfField.Ship ||
-                                    foundField.TypeOfField == KindOfField.Empty)
-                                {
-                                    collectFieldsToShot.Add(foundField);
-                                    break;
-                                }
                                 x++;
                             }
                             //Idziemy w lewo
                              x = LastField.X - 1;
                             while (true)
                             {
-                                var foundField =
-                                    playerBoard.ListOfFields.SingleOrDefault(
-                                        p => p.CompareLocation(x, LastField.Y));
-
-                                if (foundField == null || foundField.TypeOfField == KindOfField.Miss)
+                                if (AddPossibleField(playerBoard, collectFieldsToShot, x, LastField.Y))
                                     break;
-                                if (foundField.TypeOfField == KindOfField.Ship ||
-                                    foundField.TypeOfField == KindOfField.Empty)
-                                {
-                                    collectFieldsToShot.Add(foundField);
-                                    break;
-                                }
                                 x--;
                             }
 
                             //Losowanie Pola
-                            picked = generator.Next(collectFieldsToShot.Count);
-                            var fieldPicked = collectFieldsToShot[picked];
+                            var fieldPicked = GetRandomField(collectFieldsToShot, generator);
                             if (fieldPicked.TypeOfField == KindOfField.Ship)
                             {
                                 LastField = fieldPicked;
@@ -190,6 +146,29 @@ namespace MKlimowski___gra_w_statki
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        //Zwraca false jesli pole jest trafionym statkiem, true jesli nie
+        private static bool AddPossibleField(Board playerBoard, List<Field> collectFieldsToShot, int x, int y)
+        {
+            var foundField =
+                playerBoard.ListOfFields.SingleOrDefault(
+                    p => p.CompareLocation(x, y));
+
+            if (foundField == null || foundField.TypeOfField == KindOfField.Miss)
+                return true;
+
+            if (foundField.TypeOfField == KindOfField.Hit)
+                return false;
+
+            collectFieldsToShot.Add(foundField);
+            return true;
+        }
+
+        private static Field GetRandomField(List<Field> collectFieldsToShot, Random generator)
+        {
+            int picked = generator.Next(collectFieldsToShot.Count);
+            return collectFieldsToShot[picked];
         }
 
         private static Field PickByPriority(List<Field> priorityList)

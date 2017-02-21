@@ -24,9 +24,4 @@
             return X >= x - 1 && X <= x + 1 && Y >= y - 1 && Y <= y + 1;
         }
     }
-
-    public enum KindOfField
-    {
-        Empty, Miss, Hit, Ship
-    }
 }
